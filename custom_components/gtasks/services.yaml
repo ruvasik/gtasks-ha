@@ -1,0 +1,22 @@
+new_task:
+  description: Adds a given amount of a product to the stock
+  fields:
+    task_title:
+      example: 'have to do something'
+    due_date:
+      example: 'YY/MM/DD, like 19/03/26'
+      
+new_list:
+  description: Consumes a given amount of a product to the stock
+  fields:
+    list_title:
+      example: 'Shopping List'
+      
+complete_task:
+  description: Executes the given chore with an optional timestamp and executor
+  fields:
+    task_title:
+      example: 'tasks to complete'
+    task_list:
+      example: 'Tasks list'
+

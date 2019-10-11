@@ -1,0 +1,16 @@
+{
+  "domain": "gtasks",
+  "name": "GTasks",
+  "documentation": "https://github.com/BlueBlueBlob/gtasks",
+  "dependencies": [],
+  "config_flow": true,
+  "codeowners": [
+    "@BlueBlueBlob"
+  ],
+  "requirements": [
+    "keyrings.alt",
+    "gtasks2==0.2.2",
+    "integrationhelper"
+  ],
+  "homeassistant": "0.96.0"
+}
