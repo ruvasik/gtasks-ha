@@ -1,69 +1,69 @@
-"""Sensor platform for Gtasks."""
-from homeassistant.helpers.entity import Entity
+"""Binary sensor platform for gtasks."""
+from homeassistant.components.binary_sensor import BinarySensorDevice
 from datetime import timedelta, date
 
 from .const import (
     ATTRIBUTION,
     DEFAULT_NAME,
     DOMAIN_DATA,
-    ICON,
     DOMAIN,
 )
 
-from datetime import datetime, timedelta
 
 async def async_setup_platform(
     hass, config, async_add_entities, discovery_info=None
 ):  # pylint: disable=unused-argument
-    """Setup sensor platform."""
-    async_add_entities([GtasksSensor(hass, discovery_info)], True)
+    """Setup binary_sensor platform."""
+    async_add_entities([GtasksBinarySensor(hass, discovery_info)], True)
 
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Setup sensor platform."""
-    async_add_devices([GtasksSensor(hass, {})], True)
+    async_add_devices([GtasksBinarySensor(hass, {})], True)
 
 
-class GtasksSensor(Entity):
-    """blueprint Sensor class."""
+class GtasksBinarySensor(BinarySensorDevice):
+    """gtasks binary_sensor class."""
 
     def __init__(self, hass, config):
         self.hass = hass
         self.attr = {}
-        self._state = None
+        self._status = False
         self._list = hass.data[DOMAIN_DATA]["default_list"]
         self._name = '{}_{}'.format(config.get("name", DEFAULT_NAME),self._list)
 
     async def async_update(self):
-        """Update the sensor."""
+        """Update the binary_sensor."""
         # Send update "signal" to the component
-        await self.hass.data[DOMAIN_DATA]["client"].get_tasks()
+        await self.hass.data[DOMAIN_DATA]["client"].have_tasks_passed()
 
         # Get new data (if any)
-        task_list = self.hass.data[DOMAIN_DATA].get("tasks_list", None)
+        passed_list = self.hass.data[DOMAIN_DATA].get("passed_list", None)
         data = []
         # Check the data and update the value.
-        if task_list is None:
-            self._state = self._state
+        if passed_list is None:
+            self._status = self._status
         else:
-            self._state = len(task_list)
-            for t in task_list:
-                jtask = {}
-                jtask["task_title"] = '{}'.format(t.title)
-                jtask["due_date"] = '{}'.format(t.due_date)
-                data.append(jtask)
+            for task in passed_list:
+                dict = {}
+                dict['taskt_title'] = '{}'.format(task.title)
+                dict['due_data'] = '{}'.format(task.due_date)
+                tdelta = date.today() - task.due_date
+                dict['days_overdue'] = tdelta.days
+                data.append(dict)
+            self._status = True
 
         # Set/update attributes
         self.attr["attribution"] = ATTRIBUTION
         self.attr["tasks"] = data
 
-
     @property
     def unique_id(self):
-        """Return a unique ID to use for this sensor."""
+        """Return a unique ID to use for this binary_sensor."""
         return (
-            "a80f3d5b-df3d-4e38-bbb7-1025276830cd"
+            "198ae5f6-1743-4f9c-8fb6-4086b4fba2d2"
         )
+
     @property
     def device_info(self):
         return {
@@ -74,22 +74,13 @@ class GtasksSensor(Entity):
 
     @property
     def name(self):
-        """Return the name of the sensor."""
+        """Return the name of the binary_sensor."""
         return self._name
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return ICON
-
-    @property
-    def unit_of_measurement(self):
-        return SENSOR_UNIT_OF_MEASUREMENT
+    def is_on(self):
+        """Return true if the binary_sensor is on."""
+        return self._status
 
     @property
     def device_state_attributes(self):

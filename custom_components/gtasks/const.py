@@ -3,7 +3,7 @@
 DOMAIN = "gtasks"
 DOMAIN_DATA = f"{DOMAIN}_data"
 VERSION = "0.0.1"
-PLATFORMS = ["sensor"]
+PLATFORMS = ["sensor", "binary_sensor"]
 REQUIRED_FILES = [
     ".translations/en.json",
     "const.py",
@@ -11,6 +11,7 @@ REQUIRED_FILES = [
     "manifest.json",
     "sensor.py",
     "services.yaml",
+    "binary_sensor.py",
 ]
 ISSUE_URL = "https://github.com/BlueBlueBlob/gtasks/issues"
 ATTRIBUTION = "Data from this is provided by gtasks."

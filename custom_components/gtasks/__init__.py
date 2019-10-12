@@ -5,7 +5,7 @@ For more details about this component, please refer to
 https://github.com/BlueBlueBlob/gtasks
 """
 import os
-from datetime import timedelta
+from datetime import timedelta, date
 import logging
 import voluptuous as vol
 from homeassistant import config_entries
@@ -115,6 +115,7 @@ async def async_setup(hass, config):
     default_list = config[DOMAIN].get(CONF_DEFAULT_LIST)
     force_login = config[DOMAIN].get(CONF_FORCE_LOGIN)
     hass.data[DOMAIN_DATA]["default_list"] = default_list
+    
     # Configure the client.
     try:
         kr = PlaintextKeyring()
@@ -152,18 +153,16 @@ async def async_setup_entry(hass, config_entry):
     #hass.data[DOMAIN_DATA] = {}
 
     # Get "global" configuration.
-    
-    _LOGGER.info('data {}'.format(hass.data[DOMAIN_DATA]))
 
     # Configure the client.
     g = hass.data[DOMAIN_DATA]["gtasks_obj"]
     default_list = hass.data[DOMAIN_DATA]["default_list"]
     hass.data[DOMAIN_DATA]["client"] = GtasksData(hass,g, default_list)
-    _LOGGER.info('{}'.format(g))
+    
     # Add binary_sensor
-    #hass.async_add_job(
-        #hass.config_entries.async_forward_entry_setup(config_entry, "binary_sensor")
-    #)
+    hass.async_add_job(
+        hass.config_entries.async_forward_entry_setup(config_entry, "binary_sensor")
+    )
 
     # Add sensor
     hass.async_add_job(
@@ -230,7 +229,7 @@ class GtasksData:
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def get_tasks(self):
-        """Update data."""
+        """Update data sensor"""
         # This is where the main logic to update platform data goes.
         
         try:
@@ -241,6 +240,43 @@ class GtasksData:
             self.hass.data[DOMAIN_DATA]["tasks_list"] = tasks_list
         except Exception as e:
             _LOGGER.exception(e)
+
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
+    async def have_tasks_passed(self):
+        """Update data binary sensor"""
+        # This is where the main logic to update platform data goes.
+        
+        try:
+            if self.default_list is None:
+                passed_list = await self.hass.async_add_executor_job(
+                    self.gtasks.get_tasks,
+                    True,
+                    None,
+                    date.today(),
+                    '@default',
+                    float('inf'),
+                    None,
+                    None,
+                    None,
+                    False,
+                    False)
+            else:
+                passed_list = await self.hass.async_add_executor_job(
+                    self.gtasks.get_tasks,
+                    True,
+                    None,
+                    date.today(),
+                    self.default_list,
+                    float('inf'),
+                    None,
+                    None,
+                    None,
+                    False,
+                    False)
+            self.hass.data[DOMAIN_DATA]["passed_list"] = passed_list
+        except Exception as e:
+            _LOGGER.exception(e)
+
 
 async def check_files(hass):
     """Return bool that indicates if all files are present."""
