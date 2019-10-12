@@ -1,6 +1,6 @@
 """Sensor platform for Gtasks."""
 from homeassistant.helpers.entity import Entity
-from .const import ATTRIBUTION, DEFAULT_NAME, DOMAIN_DATA, ICON, DOMAIN
+from .const import ATTRIBUTION, DEFAULT_NAME, DOMAIN_DATA, ICON, DOMAIN, SENSOR_UNIT_OF_MEASUREMENT
 from datetime import datetime, timedelta
 
 async def async_setup_platform(
@@ -22,7 +22,8 @@ class GtasksSensor(Entity):
         self.hass = hass
         self.attr = {}
         self._state = None
-        self._name = config.get("name", DEFAULT_NAME)
+        self._list = hass.data[DOMAIN_DATA]["default_list"]
+        self._name = '{}_{}'.format(config.get("name", DEFAULT_NAME),self._list)
 
     async def async_update(self):
         """Update the sensor."""
@@ -31,22 +32,29 @@ class GtasksSensor(Entity):
 
         # Get new data (if any)
         task_list = self.hass.data[DOMAIN_DATA].get("tasks_list", None)
-
+        data = []
         # Check the data and update the value.
-        data = {}
         if task_list is None:
             self._state = self._state
         else:
-            for task in task_list:
-                data[task.title] = task.due_date
-            self._state = data
+            self._state = len(task_list)
+            for t in task_list:
+                jtask = {}
+                jtask["task_title"] = '{}'.format(t.title)
+                jtask["due_date"] = '{}'.format(t.due_date)
+                data.append(jtask)
 
         # Set/update attributes
         self.attr["attribution"] = ATTRIBUTION
-        #self.attr["time"] = str(updated.get("time"))
-        #self.attr["none"] = updated.get("none")
+        self.attr["tasks"] = data
 
 
+    @property
+    def unique_id(self):
+        """Return a unique ID to use for this sensor."""
+        return (
+            "a80f3d5b-df3d-4e38-bbb7-1025276830cd"
+        )
     @property
     def device_info(self):
         return {
@@ -69,6 +77,10 @@ class GtasksSensor(Entity):
     def icon(self):
         """Return the icon of the sensor."""
         return ICON
+
+    @property
+    def unit_of_measurement(self):
+        return SENSOR_UNIT_OF_MEASUREMENT
 
     @property
     def device_state_attributes(self):

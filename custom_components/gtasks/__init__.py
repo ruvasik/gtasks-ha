@@ -33,6 +33,7 @@ from .const import (
     VERSION,
     CONF_CREDENTIALS_LOCATION,
     CONF_DEFAULT_LIST,
+    CONF_FORCE_LOGIN,
     ATTR_TASK_TITLE,
     ATTR_DUE_DATE,
     ATTR_LIST_TITLE,
@@ -60,7 +61,7 @@ SENSOR_SCHEMA = vol.Schema(
 NEW_TASK_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_TASK_TITLE): cv.string,
-        vol.Optional(ATTR_DUE_DATE): cv.datetime,
+        vol.Optional(ATTR_DUE_DATE): cv.date,
         vol.Optional(ATTR_LIST_TITLE): cv.string,
     }
 )
@@ -84,10 +85,7 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Required(CONF_CREDENTIALS_LOCATION): cv.string,
                 vol.Optional(CONF_DEFAULT_LIST, default=None): cv.string,
-                vol.Optional(CONF_BINARY_SENSOR): vol.All(
-                    cv.ensure_list, [BINARY_SENSOR_SCHEMA]
-                ),
-                vol.Optional(CONF_SENSOR): vol.All(cv.ensure_list, [SENSOR_SCHEMA]),
+                vol.Optional(CONF_FORCE_LOGIN, default=False): cv.boolean,
             }
         )
     },
@@ -115,13 +113,14 @@ async def async_setup(hass, config):
     # Get "global" configuration.
     creds = config[DOMAIN].get(CONF_CREDENTIALS_LOCATION)
     default_list = config[DOMAIN].get(CONF_DEFAULT_LIST)
+    force_login = config[DOMAIN].get(CONF_FORCE_LOGIN)
     hass.data[DOMAIN_DATA]["default_list"] = default_list
     # Configure the client.
     try:
         kr = PlaintextKeyring()
         keyring.set_keyring(kr)
         _LOGGER.info('keyring : {}'.format(kr))
-        gtasks_obj = Gtasks(open_browser=False, credentials_location=creds, two_steps=True)
+        gtasks_obj = Gtasks(open_browser=False, force_login=force_login, credentials_location=creds, two_steps=True)
         hass.data[DOMAIN_DATA]["auth_url"] = gtasks_obj.auth_url()
         hass.data[DOMAIN_DATA]["gtasks_obj"] = gtasks_obj
     except Exception as e:
@@ -137,12 +136,12 @@ async def async_setup_entry(hass, config_entry):
     _LOGGER.info("init init")
     
     conf = hass.data.get(DOMAIN_DATA)
-    #if config_entry.source == config_entries.SOURCE_IMPORT:
-        #if conf is None:
-            #hass.async_create_task(
-                #hass.config_entries.async_remove(config_entry.entry_id)
-            #)
-        #return False
+    if config_entry.source == config_entries.SOURCE_IMPORT:
+        if conf is None:
+            hass.async_create_task(
+                hass.config_entries.async_remove(config_entry.entry_id)
+            )
+        return False
 
     # Print startup message
     _LOGGER.info(

@@ -19,7 +19,7 @@ ATTRIBUTION = "Data from this is provided by gtasks."
 ICON = "mdi:check-bold"
 
 # Device classes
-
+SENSOR_UNIT_OF_MEASUREMENT = "Task(s)"
 
 # Configuration
 CONF_BINARY_SENSOR = "binary_sensor"
@@ -27,6 +27,7 @@ CONF_SENSOR = "sensor"
 CONF_NAME = "name"
 CONF_CREDENTIALS_LOCATION = "credentials_location"
 CONF_DEFAULT_LIST = "default_list"
+CONF_FORCE_LOGIN = "force_login"
 
 # Defaults
 DEFAULT_NAME = DOMAIN
