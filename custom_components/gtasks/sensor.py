@@ -8,6 +8,7 @@ from .const import (
     DOMAIN_DATA,
     ICON,
     DOMAIN,
+    SENSOR_UNIT_OF_MEASUREMENT,
 )
 
 from datetime import datetime, timedelta
