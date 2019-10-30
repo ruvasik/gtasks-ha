@@ -1,6 +1,7 @@
 """Sensor platform for Gtasks."""
 from homeassistant.helpers.entity import Entity
 from datetime import timedelta, date
+from uuid import getnode as get_mac
 
 from .const import (
     ATTRIBUTION,
@@ -45,6 +46,7 @@ class GtasksSensor(Entity):
         self._state = None
         self._list = hass.data[DOMAIN_DATA]["default_list"]
         self._name = '{}_{}'.format(config.get("name", DEFAULT_NAME),self._list)
+        self._unique_id = '{}-{}'.format(get_mac() , self._name)
 
     async def async_update(self):
         """Update the sensor."""
@@ -69,9 +71,8 @@ class GtasksSensor(Entity):
     @property
     def unique_id(self):
         """Return a unique ID to use for this sensor."""
-        return (
-            "a80f3d5b-df3d-4e38-bbb7-1025276830cd"
-        )
+        return self._unique_id
+
     @property
     def device_info(self):
         return {

@@ -22,6 +22,8 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
     """Config flow for Gtasks."""
 
     VERSION = 1
+    CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
+    
     def __init__(self):
         self._auth_url = "" 
 
