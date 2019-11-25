@@ -5,7 +5,7 @@ For more details about this component, please refer to
 https://github.com/BlueBlueBlob/gtasks
 """
 import os
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 import logging
 import voluptuous as vol
 from homeassistant import config_entries
@@ -23,6 +23,7 @@ from .const import (
     CONF_NAME,
     CONF_SENSOR,
     DEFAULT_NAME,
+    DEFAULT_TOKEN_LOCATION,
     DOMAIN_DATA,
     DOMAIN,
     ISSUE_URL,
@@ -72,8 +73,8 @@ CONFIG_SCHEMA = vol.Schema(
         DOMAIN: vol.Schema(
             {
                 vol.Required(CONF_CREDENTIALS_LOCATION): cv.string,
-                vol.Required(CONF_TOKEN_FILE): cv.string,
-                vol.Required(CONF_DEFAULT_LIST, default=None): cv.string,
+                vol.Required(CONF_DEFAULT_LIST): cv.string,
+                vol.Optional(CONF_TOKEN_FILE, default = DEFAULT_TOKEN_LOCATION): cv.string,
             }
         )
     },
@@ -160,15 +161,10 @@ async def async_setup_entry(hass, config_entry):
     creds = hass.data[DOMAIN_DATA]["creds"]
     token_file = hass.data[DOMAIN_DATA]["token_file"]
     default_list = hass.data[DOMAIN_DATA]["default_list"]
-<<<<<<< HEAD
-    hass.data[DOMAIN_DATA]["client"] = GtasksData(hass,g, default_list)
-   
-=======
     gapi = hass.data[DOMAIN_DATA].get("gtasks_obj", GtasksAPI(creds, token_file))
     _LOGGER.debug('gtasks : {}'.format(gapi))
     hass.data[DOMAIN_DATA]["client"] = GtasksData(hass, gapi, default_list)
     
->>>>>>> 9d16328 (WIP : major update : try to fix reboot survive)
     # Add binary_sensor
     hass.async_add_job(
         hass.config_entries.async_forward_entry_setup(config_entry, "binary_sensor")
@@ -187,35 +183,25 @@ async def async_setup_entry(hass, config_entry):
         task = {}
         task['title'] = title
         if due_date:
-            task['due'] = datetime.strftime(due_date, '%Y-%m-%dT00:00:00.000Z')
-        client = hass.data[DOMAIN_DATA]["client"]
-        service = client._service
+             task['due'] = datetime.strftime(due_date, '%Y-%m-%dT00:00:00.000Z')
+
+        _LOGGER.debug('task : {}'.format(task))
         try:
-<<<<<<< HEAD
-            await hass.async_add_executor_job(add_task_helper, g, title, due_date, task_list)
-        except Exception as e:
-            _LOGGER.exception(e)
-            
-    @callback
-    async def new_list(call):
-        new_task_list = call.data.get(ATTR_LIST_TITLE)
-        try:
+##            await hass.async_add_executor_job(add_task_helper, g, title, due_date, task_list)
+##        new_task_list = call.data.get(ATTR_LIST_TITLE)
             await hass.async_add_executor_job(add_list_helper, g, new_task_list)
         except Exception as e:
             _LOGGER.exception(e)
             
-    @callback
-    async def complete_task(call):
-        task_to_complete = call.data.get(ATTR_TASK_TITLE)
-        task_list = call.data.get(ATTR_LIST_TITLE, default_list)
-        try:
-            list = g.get_list(task_list)
-            await hass.async_add_executor_job(complete_task_helper, list, task_to_complete)
-=======
-            service.tasks().insert(task_list = client.default_list_id, body = task)
-        except Exception as e:
-            _LOGGER.exception(e)
-            
+##    @callback
+##    async def complete_task(call):
+##        task_to_complete = call.data.get(ATTR_TASK_TITLE)
+##        task_list = call.data.get(ATTR_LIST_TITLE, default_list)
+##        try:
+##            list = g.get_list(task_list)
+##            await hass.async_add_executor_job(complete_task_helper, list, task_to_complete)
+##            service.tasks().insert(task_list = client.default_list_id, body = task)
+##            client._service.tasks().insert(tasklist=client.default_list_id, body=task).execute()
             
     @callback
     def complete_task(call):
@@ -227,7 +213,6 @@ async def async_setup_entry(hass, config_entry):
             task_to_complete = service.tasks().get(tasklist=client.default_list_id, task=task_id).execute()
             task_to_complete['status'] = 'completed'
             service.tasks().update(tasklist=client.default_list_id, task=task_to_complete['id'], body=task_to_complete).execute()
->>>>>>> 9d16328 (WIP : major update : try to fix reboot survive)
         except Exception as e:
             _LOGGER.exception(e)
     

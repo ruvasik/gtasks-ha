@@ -35,5 +35,6 @@ gtasks:
   credentials_location: /path/credentials.json
   default_list: 'My task list'
   force_login: false
+  token_file: /config/token.pickle
 ```
 
