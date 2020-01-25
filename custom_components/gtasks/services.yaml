@@ -4,6 +4,9 @@ new_task:
     task_title:
       description: "The task title"
       example: 'New Task'
+    tasks_list:
+      description: "The list name"
+      example: "My Task List"
     due_date:
       example: '2023-03-26'
       
@@ -12,5 +15,7 @@ complete_task:
   fields:
     task_title:
       example: 'Tasks to complete'
-    task_list:
+      description: "The task title"
+    tasks_list:
+      description: "The list name"
       example: 'Tasks list'

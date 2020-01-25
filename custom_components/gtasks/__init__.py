@@ -5,12 +5,13 @@ For more details about this component, please refer to
 https://github.com/BlueBlueBlob/gtasks
 """
 import os
+import asyncio
 from datetime import timedelta, date, datetime
 import logging
 import voluptuous as vol
 from homeassistant import config_entries
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers import discovery
+from homeassistant.helpers import discovery, entity_component
 from homeassistant.util import Throttle
 from homeassistant.core import callback
 
@@ -31,9 +32,11 @@ from .const import (
     REQUIRED_FILES,
     VERSION,
     CONF_CREDENTIALS_LOCATION,
-    CONF_TOKEN_FILE,
-    CONF_DEFAULT_LIST,
+    CONF_TOKEN_PATH,
+    CONF_TOKEN_NAME,
+    CONF_TASKS_LISTS,
     ATTR_TASK_TITLE,
+    ATTR_TASKS_LIST,
     ATTR_DUE_DATE,
     SERVICE_NEW_TASK,
     SERVICE_COMPLETE_TASK,
@@ -58,6 +61,7 @@ SENSOR_SCHEMA = vol.Schema(
 NEW_TASK_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_TASK_TITLE): cv.string,
+        vol.Required(ATTR_TASKS_LIST): cv.string,
         vol.Optional(ATTR_DUE_DATE): cv.date,
     }
 )
@@ -65,6 +69,7 @@ NEW_TASK_SCHEMA = vol.Schema(
 COMPLETE_TASK_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_TASK_TITLE): cv.string,
+        vol.Required(ATTR_TASKS_LIST): cv.string,
     }
 )
 
@@ -72,9 +77,9 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Required(CONF_CREDENTIALS_LOCATION): cv.string,
-                vol.Required(CONF_DEFAULT_LIST): cv.string,
-                vol.Optional(CONF_TOKEN_FILE, default = DEFAULT_TOKEN_LOCATION): cv.string,
+                vol.Required(CONF_CREDENTIALS_LOCATION): cv.isfile,
+                vol.Required(CONF_TASKS_LISTS): vol.All(cv.ensure_list, [cv.string]),
+                vol.Optional(CONF_TOKEN_PATH, default = DEFAULT_TOKEN_LOCATION): cv.isdir,
             }
         )
     },
@@ -82,44 +87,10 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
-def setup(hass, config):
-    """Set up this component using CONFIG ONLY."""
-
-    if config.get(DOMAIN) is None:
-        # We get here if the integration is set up using config flow
-        return True
-
-    # Print startup message
-
-    # Check that all required files are present
-    file_check = check_files(hass)
-    if not file_check:
-        return False
-
+async def async_setup(hass, config):
+    """Set up this component using YAML."""
     # Create DATA dict
     hass.data[DOMAIN_DATA] = {}
-
-    # Get "global" configuration.
-    creds = config[DOMAIN].get(CONF_CREDENTIALS_LOCATION)
-    default_list = config[DOMAIN].get(CONF_DEFAULT_LIST)
-    token_file = config[DOMAIN].get(CONF_TOKEN_FILE)
-    hass.data[DOMAIN_DATA]["creds"] = creds
-    hass.data[DOMAIN_DATA]["token_file"] = token_file
-    hass.data[DOMAIN_DATA]["default_list"] = default_list
-<<<<<<< HEAD
-    # Configure the client.
-    try:
-        kr = PlaintextKeyring()
-        keyring.set_keyring(kr)
-        _LOGGER.info('keyring : {}'.format(kr))
-        gtasks_obj = Gtasks(open_browser=False, force_login=force_login, credentials_location=creds, two_steps=True)
-        hass.data[DOMAIN_DATA]["auth_url"] = gtasks_obj.auth_url()
-        _LOGGER.info('{}'.format(gtasks_obj.auth_url()))
-        hass.data[DOMAIN_DATA]["gtasks_obj"] = gtasks_obj
-    except Exception as e:
-        _LOGGER.exception(e)
-        return False
-
     return True
 
 def add_list_helper(g, new_task_list):
@@ -151,20 +122,29 @@ async def async_setup_entry(hass, config_entry):
         CC_STARTUP_VERSION.format(name=DOMAIN, version=VERSION, issue_link=ISSUE_URL)
     )
 
-    # Create DATA dict
-    #hass.data[DOMAIN_DATA] = {}
-
     # Get "global" configuration.
+    creds = config_entry.data.get("creds")
+    token_file = config_entry.data.get("token_file")
+    tasks_lists = config_entry.data.get("tasks_lists")
 
     # Configure the client.
-    
-    creds = hass.data[DOMAIN_DATA]["creds"]
-    token_file = hass.data[DOMAIN_DATA]["token_file"]
-    default_list = hass.data[DOMAIN_DATA]["default_list"]
-    gapi = hass.data[DOMAIN_DATA].get("gtasks_obj", GtasksAPI(creds, token_file))
-    _LOGGER.debug('gtasks : {}'.format(gapi))
-    hass.data[DOMAIN_DATA]["client"] = GtasksData(hass, gapi, default_list)
-    
+    hass.data[DOMAIN_DATA]["creds"] = creds
+    hass.data[DOMAIN_DATA]["token_file"] = token_file
+    hass.data[DOMAIN_DATA]["tasks_lists"] = tasks_lists
+    try:
+        gapi = await hass.async_add_executor_job(GtasksAPI, creds, token_file)
+        _LOGGER.info('gapi : {}'.format(gapi))
+    except Exception as e:
+        _LOGGER.exception(e)
+        return False
+    try:
+        hass.data[DOMAIN_DATA]["gapi"]  = gapi
+        hass.data[DOMAIN_DATA]["client"] = await hass.async_add_executor_job(GtasksData, hass, gapi, tasks_lists)
+        _LOGGER.info('client : {}'.format(hass.data[DOMAIN_DATA]["client"]))
+    except Exception as e:
+        _LOGGER.exception(e)
+        return False
+    _LOGGER.info('data : {}'.format(hass.data[DOMAIN_DATA]))
     # Add binary_sensor
     hass.async_add_job(
         hass.config_entries.async_forward_entry_setup(config_entry, "binary_sensor")
@@ -178,8 +158,10 @@ async def async_setup_entry(hass, config_entry):
     @callback
     async def new_task(call):
         title = call.data.get(ATTR_TASK_TITLE)
+        list = call.data.get(ATTR_TASKS_LIST)
         due_date = call.data.get(ATTR_DUE_DATE, None)
         client = hass.data[DOMAIN_DATA]["client"]
+        list_id = client.tasks_lists_id[list]
         task = {}
         task['title'] = title
         if due_date:
@@ -189,7 +171,11 @@ async def async_setup_entry(hass, config_entry):
         try:
 ##            await hass.async_add_executor_job(add_task_helper, g, title, due_date, task_list)
 ##        new_task_list = call.data.get(ATTR_LIST_TITLE)
-            await hass.async_add_executor_job(add_list_helper, g, new_task_list)
+##            await hass.async_add_executor_job(add_list_helper, g, new_task_list)
+            client._service.tasks().insert(tasklist=list_id, body=task).execute()
+            asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
+                hass,
+                '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
         except Exception as e:
             _LOGGER.exception(e)
             
@@ -206,13 +192,18 @@ async def async_setup_entry(hass, config_entry):
     @callback
     def complete_task(call):
         task_name = call.data.get(ATTR_TASK_TITLE)
+        list = call.data.get(ATTR_TASKS_LIST)
         client = hass.data[DOMAIN_DATA]["client"]
+        list_id = client.tasks_lists_id[list]
         service = client._service
         try:
-            task_id = client.gapi.get_task_id(client.default_list_id, task_name)
-            task_to_complete = service.tasks().get(tasklist=client.default_list_id, task=task_id).execute()
+            task_id = client.gapi.get_task_id(list_id, task_name)
+            task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
             task_to_complete['status'] = 'completed'
-            service.tasks().update(tasklist=client.default_list_id, task=task_to_complete['id'], body=task_to_complete).execute()
+            service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
+            asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
+                hass,
+                '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
         except Exception as e:
             _LOGGER.exception(e)
     
@@ -221,7 +212,7 @@ async def async_setup_entry(hass, config_entry):
         DOMAIN, SERVICE_NEW_TASK, new_task, schema=NEW_TASK_SCHEMA
     )
 
-    
+
     #Register "comple_task" service
     hass.services.async_register(
         DOMAIN, SERVICE_COMPLETE_TASK, complete_task, schema=COMPLETE_TASK_SCHEMA
@@ -233,35 +224,38 @@ async def async_setup_entry(hass, config_entry):
 class GtasksData:
     """This class handle communication and stores the data."""
 
-    def __init__(self, hass, gapi, default_list):
+    def __init__(self, hass, gapi, tasks_lists):
         """Initialize the class."""
         self.hass = hass
         self.gapi = gapi
         self._service = self.gapi.service
+        self.tasks_lists_id = {}
         _LOGGER.debug('gapi : {} , service : {}'.format(self.gapi,self._service))
-        self.default_list = default_list
-        self.default_list_id = self.gapi.get_taskslist_id(self.default_list)
-        _LOGGER.debug('task list id : {}'.format(self.default_list_id))
+        self.tasks_lists = tasks_lists
+        for list in tasks_lists:
+            self.tasks_lists_id[list] = self.gapi.get_taskslist_id(list)
+        _LOGGER.debug('task list id : {}'.format(self.tasks_lists_id))
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def update_data(self):
         today = date.today().strftime('%Y-%m-%dT00:00:00.000Z')
-        request_sensor = self._service.tasks().list(tasklist=self.default_list_id, showCompleted= False)
-        request_binary_sensor = self._service.tasks().list(tasklist=self.default_list_id, showCompleted=False, dueMax=today )
-        tag_sensor = CONF_SENSOR + "_data"
-        tag_binary = CONF_BINARY_SENSOR + "_data"
-        try:
-            tasks_list_sensor = await self.hass.async_add_executor_job(request_sensor.execute)
-            self.hass.data[DOMAIN_DATA][tag_sensor] = tasks_list_sensor.get('items', None)
-            _LOGGER.debug('tasks_list : {}'.format(tasks_list_sensor))
-        except Exception as e:
-            _LOGGER.exception(e) 
-        try:
-            tasks_list_binary = await self.hass.async_add_executor_job(request_binary_sensor.execute)
-            self.hass.data[DOMAIN_DATA][tag_binary] = tasks_list_binary.get('items', None)
-            _LOGGER.debug('tasks_list : {}'.format(tasks_list_binary))
-        except Exception as e:
-            _LOGGER.exception(e)
+        for list in self.tasks_lists:
+            request_binary_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list], showCompleted=False, dueMax=today )
+            request_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list], showCompleted= False)
+            tag_binary = list + CONF_BINARY_SENSOR + "_data"
+            tag_sensor = list + CONF_SENSOR + "_data"
+            try:
+                tasks_list_sensor = await self.hass.async_add_executor_job(request_sensor.execute)
+                self.hass.data[DOMAIN_DATA][tag_sensor] = tasks_list_sensor.get('items', None)
+                _LOGGER.debug('tasks_list : {}'.format(tasks_list_sensor))
+            except Exception as e:
+                _LOGGER.exception(e)
+            try:
+                tasks_list_binary = await self.hass.async_add_executor_job(request_binary_sensor.execute)
+                self.hass.data[DOMAIN_DATA][tag_binary] = tasks_list_binary.get('items', None)
+                _LOGGER.debug('tasks_list : {}'.format(tasks_list_binary))
+            except Exception as e:
+                _LOGGER.exception(e)
 
 async def check_files(hass):
     """Return bool that indicates if all files are present."""
@@ -288,14 +282,15 @@ async def async_remove_entry(hass, config_entry):
         await hass.config_entries.async_forward_entry_unload(
             config_entry, "binary_sensor"
         )
-        _LOGGER.debug(
+
+    except ValueError as e:
+        _LOGGER.error(e)
+    _LOGGER.info(
             "Successfully removed binary_sensor from the gtasks integration"
         )
-    except ValueError:
-        pass
-
     try:
         await hass.config_entries.async_forward_entry_unload(config_entry, "sensor")
-        _LOGGER.debug("Successfully removed sensor from the gtasks integration")
-    except ValueError:
-        pass
+
+    except ValueError as e:
+        _LOGGER.error(e)
+    _LOGGER.info("Successfully removed sensor from the gtasks integration")

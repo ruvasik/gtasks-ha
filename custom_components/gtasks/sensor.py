@@ -27,7 +27,9 @@ async def async_setup_platform(
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Setup sensor platform."""
-    async_add_devices([GtasksSensor(hass, {})], True)
+    tasks_lists = hass.data[DOMAIN_DATA]["tasks_lists"]
+    for list in tasks_lists:
+        async_add_devices([GtasksSensor(hass, {} , list)], True)
 
 
 def helper_task(task_list, data):
@@ -41,11 +43,11 @@ def helper_task(task_list, data):
 class GtasksSensor(Entity):
     """blueprint Sensor class."""
 
-    def __init__(self, hass, config):
+    def __init__(self, hass, config, list_name):
         self.hass = hass
         self.attr = {}
-        self._state = None
-        self._list = hass.data[DOMAIN_DATA]["default_list"]
+        self._state = 0
+        self._list = list_name
         self._name = '{}_{}'.format(config.get("name", DEFAULT_NAME),self._list)
         self._unique_id = '{}-{}-{}'.format(get_mac() , CONF_SENSOR, self._name)
 
@@ -55,11 +57,11 @@ class GtasksSensor(Entity):
         await self.hass.data[DOMAIN_DATA]["client"].update_data()
 
         # Get new data (if any)
-        task_list = self.hass.data[DOMAIN_DATA].get(CONF_SENSOR + "_data", None)
+        task_list = self.hass.data[DOMAIN_DATA].get(self._list + CONF_SENSOR + "_data", None)
         data = []
         # Check the data and update the value.
         if task_list is None:
-            self._state = self._state
+            self._state = 0
         else:
             #self._state = await self.hass.async_add_executor_job(len, task_list)
             #data = await self.hass.async_add_executor_job(helper_task, task_list, data)
