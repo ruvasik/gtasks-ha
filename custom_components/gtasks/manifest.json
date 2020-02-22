@@ -8,7 +8,7 @@
     "@Myntath"
   ],
   "requirements": [
-    "gtasks_api==0.0.7",
+    "gtasks_api==0.0.8",
     "integrationhelper"
   ],
   "version": "0.1"

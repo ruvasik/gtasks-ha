@@ -41,7 +41,7 @@ class GtasksBinarySensor(BinarySensorEntity):
     async def async_update(self):
         """Update the binary_sensor."""
         # Send update "signal" to the component
-        await self.hass.data[DOMAIN_DATA]["client"].update_data()
+        await self.hass.data[DOMAIN_DATA]["client"].update_binary_data(self._list)
 
         # Get new data (if any)
         passed_list = self.hass.data[DOMAIN_DATA].get(self._list + CONF_BINARY_SENSOR + "_data", None)
