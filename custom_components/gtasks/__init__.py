@@ -172,7 +172,7 @@ async def async_setup_entry(hass, config_entry):
         try:
 ##        new_task_list = call.data.get(ATTR_LIST_TITLE)
 ##            await hass.async_add_executor_job(add_list_helper, g, new_task_list)
-            list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8")
+            list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             client._service.tasks().insert(tasklist=list_id, body=task).execute()
             asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
                 hass,
@@ -198,7 +198,7 @@ async def async_setup_entry(hass, config_entry):
         list_id = client.tasks_lists_id[list]
         service = client._service
         try:
-            list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8")
+            list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             task_id = client.gapi.get_task_id(list_id, task_name)
             task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
             task_to_complete['status'] = 'completed'
