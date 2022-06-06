@@ -1,5 +1,5 @@
 """Binary sensor platform for gtasks."""
-from homeassistant.components.binary_sensor import BinarySensorDevice
+from homeassistant.components.binary_sensor import BinarySensorEntity
 from datetime import timedelta, date
 
 from .const import (
@@ -22,7 +22,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     async_add_devices([GtasksBinarySensor(hass, {})], True)
 
 
-class GtasksBinarySensor(BinarySensorDevice):
+class GtasksBinarySensor(BinarySensorEntity):
     """gtasks binary_sensor class."""
 
     def __init__(self, hass, config):
@@ -46,7 +46,7 @@ class GtasksBinarySensor(BinarySensorDevice):
         else:
             for task in passed_list:
                 dict = {}
-                dict['taskt_title'] = '{}'.format(task.title)
+                dict['task_title'] = '{}'.format(task.title)
                 dict['due_data'] = '{}'.format(task.due_date)
                 tdelta = date.today() - task.due_date
                 dict['days_overdue'] = tdelta.days
@@ -83,6 +83,6 @@ class GtasksBinarySensor(BinarySensorDevice):
         return self._status
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the state attributes."""
         return self.attr
