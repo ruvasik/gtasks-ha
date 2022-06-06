@@ -1,7 +1,4 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/blueblueblob/gtasks/badge)](https://www.codefactor.io/repository/github/blueblueblob/gtasks)
-
-
-
+## Gtasks-Ha a Google Tasks Custom Component for Home Assistant
 
 ## Installation
 
@@ -32,8 +29,8 @@ custom_components/gtasks/switch.py
 
 ```yaml
 gtasks:
-  credentials_location: path/credentials.json
-  default_list: 'My corves list'
+  credentials_location: /path/credentials.json
+  default_list: 'My task list'
   force_login: false
 ```
 
