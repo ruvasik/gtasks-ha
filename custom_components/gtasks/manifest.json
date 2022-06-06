@@ -5,7 +5,7 @@
   "dependencies": [],
   "config_flow": true,
   "codeowners": [
-    "@BlueBlueBlob"
+    "@Myntath"
   ],
   "requirements": [
     "keyrings.alt",

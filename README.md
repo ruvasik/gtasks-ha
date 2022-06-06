@@ -1,4 +1,5 @@
 ## Gtasks-Ha a Google Tasks Custom Component for Home Assistant
+Forked from original repo by @BlueBlueBlob
 
 ## Installation
 
