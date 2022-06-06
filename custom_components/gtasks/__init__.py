@@ -93,11 +93,11 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
-async def async_setup(hass, config):
-    """Set up this component using YAML."""
-    
+def setup(hass, config):
+    """Set up this component using CONFIG ONLY."""
+
     if config.get(DOMAIN) is None:
-        # We get her if the integration is set up using config flow
+        # We get here if the integration is set up using config flow
         return True
 
     # Print startup message
@@ -123,6 +123,7 @@ async def async_setup(hass, config):
         _LOGGER.info('keyring : {}'.format(kr))
         gtasks_obj = Gtasks(open_browser=False, force_login=force_login, credentials_location=creds, two_steps=True)
         hass.data[DOMAIN_DATA]["auth_url"] = gtasks_obj.auth_url()
+        _LOGGER.info('{}'.format(gtasks_obj.auth_url()))
         hass.data[DOMAIN_DATA]["gtasks_obj"] = gtasks_obj
     except Exception as e:
         _LOGGER.exception(e)
@@ -130,11 +131,21 @@ async def async_setup(hass, config):
 
     return True
 
+def add_list_helper(g, new_task_list):
+    g.new_list(title = new_task_list)
 
+def add_task_helper(g, title, due_date, task_list):
+    g.new_task(title = title, due_date = due_date, task_list = task_list)
+
+def complete_task_helper(list, task_to_complete):
+    for t in list:
+        if t.title == task_to_complete:
+            t.complete = True
+            break
+    return list
 
 async def async_setup_entry(hass, config_entry):
     """Set up this integration using UI."""
-    _LOGGER.info("init init")
     
     conf = hass.data.get(DOMAIN_DATA)
     if config_entry.source == config_entries.SOURCE_IMPORT:
@@ -158,7 +169,7 @@ async def async_setup_entry(hass, config_entry):
     g = hass.data[DOMAIN_DATA]["gtasks_obj"]
     default_list = hass.data[DOMAIN_DATA]["default_list"]
     hass.data[DOMAIN_DATA]["client"] = GtasksData(hass,g, default_list)
-    
+   
     # Add binary_sensor
     hass.async_add_job(
         hass.config_entries.async_forward_entry_setup(config_entry, "binary_sensor")
@@ -170,36 +181,33 @@ async def async_setup_entry(hass, config_entry):
     )
 
     @callback
-    def new_task(call):
+    async def new_task(call):
         title = call.data.get(ATTR_TASK_TITLE)
         due_date = call.data.get(ATTR_DUE_DATE, None)
         task_list = call.data.get(ATTR_LIST_TITLE, default_list)
         try:
-            g.new_task(title = title, due_date = due_date, task_list = task_list)
+            await hass.async_add_executor_job(add_task_helper, g, title, due_date, task_list)
         except Exception as e:
             _LOGGER.exception(e)
             
     @callback
-    def new_list(call):
+    async def new_list(call):
         new_task_list = call.data.get(ATTR_LIST_TITLE)
         try:
-            g.new_list(title = new_task_list)
+            await hass.async_add_executor_job(add_list_helper, g, new_task_list)
         except Exception as e:
             _LOGGER.exception(e)
             
     @callback
-    def complete_task(call):
+    async def complete_task(call):
         task_to_complete = call.data.get(ATTR_TASK_TITLE)
         task_list = call.data.get(ATTR_LIST_TITLE, default_list)
         try:
             list = g.get_list(task_list)
-            for t in list:
-                if t.title == task_to_complete:
-                    t.complete = True
-                    break
+            await hass.async_add_executor_job(complete_task_helper, list, task_to_complete)
         except Exception as e:
             _LOGGER.exception(e)
-        
+    
     #Register "new_task" service
     hass.services.async_register(
         DOMAIN, SERVICE_NEW_TASK, new_task, schema=NEW_TASK_SCHEMA
@@ -214,7 +222,7 @@ async def async_setup_entry(hass, config_entry):
     hass.services.async_register(
         DOMAIN, SERVICE_COMPLETE_TASK, complete_task, schema=COMPLETE_TASK_SCHEMA
     )
-    
+
     return True
 
 
