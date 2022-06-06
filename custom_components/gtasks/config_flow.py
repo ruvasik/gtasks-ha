@@ -22,17 +22,12 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
     """Config flow for Gtasks."""
 
     VERSION = 1
-    
     def __init__(self):
-        
         self._auth_url = "" 
 
     async def async_step_init(self, user_input=None):
         """Initialize."""
         self._errors = {}
-        
-        _LOGGER.info("init config flow")
-        
         
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
@@ -47,7 +42,6 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
         return await self.async_step_init(user_input)
         
     async def async_step_link(self, user_input=None):
-        
         url = self.hass.data[DOMAIN_DATA]["auth_url"]
         _LOGGER.info('url : {}'.format(url))
         if not url:
