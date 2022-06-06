@@ -103,7 +103,7 @@ def setup(hass, config):
     # Print startup message
 
     # Check that all required files are present
-    file_check = await check_files(hass)
+    file_check = check_files(hass)
     if not file_check:
         return False
 
