@@ -12,6 +12,9 @@ from .const import (
 )
 
 from datetime import datetime, timedelta
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_platform(
     hass, config, async_add_entities, discovery_info=None
@@ -24,6 +27,14 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     """Setup sensor platform."""
     async_add_devices([GtasksSensor(hass, {})], True)
 
+
+def helper_task(task_list, data):
+    for t in task_list:
+        jtask = {}
+        jtask["task_title"] = '{}'.format(t.title)
+        jtask["due_date"] = '{}'.format(t.due_date)
+        if not t.complete: data.append(jtask)
+    return data
 
 class GtasksSensor(Entity):
     """blueprint Sensor class."""
@@ -47,17 +58,13 @@ class GtasksSensor(Entity):
         if task_list is None:
             self._state = self._state
         else:
-            self._state = len(task_list)
-            for t in task_list:
-                jtask = {}
-                jtask["task_title"] = '{}'.format(t.title)
-                jtask["due_date"] = '{}'.format(t.due_date)
-                data.append(jtask)
+            self._state = await self.hass.async_add_executor_job(len, task_list)
+            data = await self.hass.async_add_executor_job(helper_task, task_list, data)
+
 
         # Set/update attributes
         self.attr["attribution"] = ATTRIBUTION
         self.attr["tasks"] = data
-
 
     @property
     def unique_id(self):
@@ -93,6 +100,6 @@ class GtasksSensor(Entity):
         return SENSOR_UNIT_OF_MEASUREMENT
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the state attributes."""
         return self.attr
