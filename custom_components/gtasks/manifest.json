@@ -1,7 +1,7 @@
 {
   "domain": "gtasks",
   "name": "GTasks",
-  "documentation": "https://github.com/BlueBlueBlob/gtasks",
+  "documentation": "https://github.com/myntath/gtasks-ha",
   "dependencies": [],
   "config_flow": true,
   "codeowners": [
@@ -12,5 +12,5 @@
     "gtasks2==0.2.2",
     "integrationhelper"
   ],
-  "homeassistant": "0.96.0"
+  "version": "0.1"
 }
