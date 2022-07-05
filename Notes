@@ -1,0 +1,9 @@
+You may need to access your desktop environment to 'unlock keyring' which is where the refresh token is stored.
+
+If the refresh token isn't working you may need to delete it from the keyring and setup the integration again.
+
+The Homeassistant.log gives a google address to grant permission to the app. You will be returned to a localhost page look in the address to get the 'code'
+use the code to setup the integration, when added there is one empty unlabelled box put it in there.
+
+TODO is fix all this up so it happens much more smoothly. This all relies on gtasks2 which is still available on pip but which has been removed from github.
+May need to go back to gtasks (not the 2 version) or else deal with the gtask api directly.
