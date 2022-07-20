@@ -1,0 +1,28 @@
+{
+    "config": {
+        "title": "Google Tasks",
+        "step": {
+            "link": {
+                "title": "Authentication",
+                "description": "Do authentication on this {url} and paste the authentication code",
+                "data": {
+                    "auth_code": "Authorization return code"
+                }
+            }
+        },
+        "error": {
+            "auth": "Username/Password is wrong.",
+            "timeout": "Timeout validating code",
+            "invalid_code": "Invalid code",
+            "unknown": "Unknown error validating code",
+            "internal_error": "Internal error validating code"
+        },
+        "abort": {
+            "single_instance_allowed": "Only a single configuration of Blueprint is allowed.",
+            "already_setup": "You can only configure a single Nest account.",
+            "no_flows": "You need to configure Nest before being able to authenticate with it. [Please read the instructions](https://www.home-assistant.io/components/nest/).",
+            "authorize_url_timeout": "Timeout generating authorize url.",
+            "authorize_url_fail": "Unknown error generating an authorize url."
+        }
+    }
+}
