@@ -97,7 +97,10 @@ async def async_setup(hass, config):
 def add_task_helper(client, list_id, task):
     client._service.tasks().insert(tasklist=list_id, body=task).execute()
 
-def complete_task_helper(service, list_id, task_to_complete):
+def complete_task_helper(service, client, list_id, task_name):
+    task_id = client.gapi.get_task_id(list_id, task_name)
+    task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
+    task_to_complete['status'] = 'completed'
     service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
 
 async def async_setup_entry(hass, config_entry):
@@ -191,10 +194,9 @@ async def async_setup_entry(hass, config_entry):
         service = client._service
         try:
             list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
-            task_id = client.gapi.get_task_id(list_id, task_name)
-            task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
-            task_to_complete['status'] = 'completed'
-            await hass.async_add_executor_job(complete_task_helper, service, list_id, task_to_complete)
+            ##task_id = client.gapi.get_task_id(list_id, task_name)
+            ##task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
+            await hass.async_add_executor_job(complete_task_helper, service, client, list_id, task_name)
             ##service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
             asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
                 hass,
