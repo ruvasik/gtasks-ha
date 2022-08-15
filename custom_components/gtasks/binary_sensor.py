@@ -1,6 +1,6 @@
 """Binary sensor platform for gtasks."""
-#from homeassistant.components.binary_sensor import BinarySensorEntity
-from homeassistant.components.binary_sensor import BinarySensorDevice
+from homeassistant.components.binary_sensor import BinarySensorEntity
+#from homeassistant.components.binary_sensor import BinarySensorDevice
 from datetime import timedelta, date, datetime
 from uuid import getnode as get_mac
 
