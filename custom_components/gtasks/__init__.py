@@ -168,22 +168,11 @@ async def async_setup_entry(hass, config_entry):
         try:
             list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             await hass.async_add_executor_job(add_task_helper, client, list_id, task)
-            ##client._service.tasks().insert(tasklist=list_id, body=task).execute()
-            asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
-                hass,
-                '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
+            #asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
+            #    hass,
+            #    '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
         except Exception as e:
             _LOGGER.exception(e)
-            
-##    @callback
-##    async def complete_task(call):
-##        task_to_complete = call.data.get(ATTR_TASK_TITLE)
-##        task_list = call.data.get(ATTR_LIST_TITLE, default_list)
-##        try:
-##            list = g.get_list(task_list)
-##            await hass.async_add_executor_job(complete_task_helper, list, task_to_complete)
-##            service.tasks().insert(task_list = client.default_list_id, body = task)
-##            client._service.tasks().insert(tasklist=client.default_list_id, body=task).execute()
             
     @callback
     async def complete_task(call):
@@ -194,13 +183,10 @@ async def async_setup_entry(hass, config_entry):
         service = client._service
         try:
             list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
-            ##task_id = client.gapi.get_task_id(list_id, task_name)
-            ##task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
             await hass.async_add_executor_job(complete_task_helper, service, client, list_id, task_name)
-            ##service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
-            asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
-                hass,
-                '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
+            #asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
+            #    hass,
+            #    '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
         except Exception as e:
             _LOGGER.exception(e)
     
