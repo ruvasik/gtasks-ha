@@ -157,7 +157,7 @@ async def async_setup_entry(hass, config_entry):
     )
 
     @callback
-    async def new_task(call):
+    def new_task(call):
         title = call.data.get(ATTR_TASK_TITLE)
         list = call.data.get(ATTR_TASKS_LIST)
         due_date = call.data.get(ATTR_DUE_DATE, None)
@@ -171,7 +171,7 @@ async def async_setup_entry(hass, config_entry):
         _LOGGER.debug('task : {}'.format(task))
         try:
 ##        new_task_list = call.data.get(ATTR_LIST_TITLE)
-##            await hass.async_add_executor_job(add_list_helper, g, new_task_list)
+##        await hass.async_add_executor_job(add_list_helper, g, new_task_list)
             list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             client._service.tasks().insert(tasklist=list_id, body=task).execute()
             asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
