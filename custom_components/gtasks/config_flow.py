@@ -35,11 +35,6 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
     async def async_step_init(self, user_input=None):
         """Initialize."""
         self._errors = {}
-        self.token_file = self.hass.data[DOMAIN_DATA]["token_file"]
-        self.creds = self.hass.data[DOMAIN_DATA]["creds"]
-        self.default_list = self.hass.data[DOMAIN_DATA]["default_list"]
-        _LOGGER.debug("init config flow")
-        
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
         if self.hass.data.get(DOMAIN):
