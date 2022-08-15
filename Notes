@@ -1,7 +1,8 @@
 You may need to access your desktop environment to 'unlock keyring' which is where the refresh token is stored.
 
-If the refresh token isn't working you may need to delete it from the keyring and setup the integration again. This seems to happen to me periodically
-and I am not sure why yet.
+If the refresh token isn't working you may need to delete it from the keyring and setup the integration again.
+
+If the refresh token is being revoked every 7 days make sure that in google oauth you have set the status of your google oauth consent screen publishing status to 'In production'. If still in testing then the tokens expire after 7 days.
 
 FOR INITIAL SETUP
 I added:-
