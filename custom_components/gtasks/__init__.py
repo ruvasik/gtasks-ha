@@ -94,18 +94,11 @@ async def async_setup(hass, config):
     hass.data[DOMAIN_DATA] = {}
     return True
 
-def add_list_helper(g, new_task_list):
-    g.new_list(title = new_task_list)
+def add_task_helper(client, list_id, task):
+    client._service.tasks().insert(tasklist=list_id, body=task).execute()
 
-def add_task_helper(g, title, due_date, task_list):
-    g.new_task(title = title, due_date = due_date, task_list = task_list)
-
-def complete_task_helper(list, task_to_complete):
-    for t in list:
-        if t.title == task_to_complete:
-            t.complete = True
-            break
-    return list
+def complete_task_helper(service, list_id, task_to_complete):
+    service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
 
 async def async_setup_entry(hass, config_entry):
     """Set up this integration using UI."""
@@ -157,7 +150,7 @@ async def async_setup_entry(hass, config_entry):
     )
 
     @callback
-    def new_task(call):
+    async def new_task(call):
         title = call.data.get(ATTR_TASK_TITLE)
         list = call.data.get(ATTR_TASKS_LIST)
         due_date = call.data.get(ATTR_DUE_DATE, None)
@@ -170,10 +163,9 @@ async def async_setup_entry(hass, config_entry):
 
         _LOGGER.debug('task : {}'.format(task))
         try:
-##        new_task_list = call.data.get(ATTR_LIST_TITLE)
-##        await hass.async_add_executor_job(add_list_helper, g, new_task_list)
             list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
-            client._service.tasks().insert(tasklist=list_id, body=task).execute()
+            await hass.async_add_executor_job(add_task_helper, client, list_id, task)
+            ##client._service.tasks().insert(tasklist=list_id, body=task).execute()
             asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
                 hass,
                 '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
@@ -191,7 +183,7 @@ async def async_setup_entry(hass, config_entry):
 ##            client._service.tasks().insert(tasklist=client.default_list_id, body=task).execute()
             
     @callback
-    def complete_task(call):
+    async def complete_task(call):
         task_name = call.data.get(ATTR_TASK_TITLE)
         list = call.data.get(ATTR_TASKS_LIST)
         client = hass.data[DOMAIN_DATA]["client"]
@@ -202,7 +194,8 @@ async def async_setup_entry(hass, config_entry):
             task_id = client.gapi.get_task_id(list_id, task_name)
             task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
             task_to_complete['status'] = 'completed'
-            service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
+            await hass.async_add_executor_job(complete_task_helper, service, list_id, task_to_complete)
+            ##service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
             asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
                 hass,
                 '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
