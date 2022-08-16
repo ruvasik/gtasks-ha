@@ -14,7 +14,8 @@
                 "description": "Your credentials json file need to be uploaded before",
                 "data": {
                      "creds": "Your credentials.json file ( .\/credentials.json )",
-                     "token_path": "Writable path ( .\/custom_components\/gtasks )"
+                     "token_path": "Writable path ( .\/custom_components\/gtasks )",
+		     "test": "Something something"
                 }
               },
             "list": {
