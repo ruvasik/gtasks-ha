@@ -34,7 +34,7 @@ CONF_TOKEN_NAME = 'token.pickle'
 # Defaults
 DEFAULT_NAME = DOMAIN
 DEFAULT_TOKEN_LOCATION = './custom_components/gtasks'
-DEFAULT_CREDENTIALS_LOCATION = './'
+DEFAULT_CREDENTIALS_LOCATION = './credentials.json'
 
 
 #Services attributes
