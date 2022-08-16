@@ -37,11 +37,11 @@ DEFAULT_TOKEN_LOCATION = './custom_components/gtasks'
 DEFAULT_CREDENTIALS_LOCATION = './credentials.json'
 
 
-#Services attributes
+# Services attributes
 ATTR_TASK_TITLE = "task_title"
 ATTR_DUE_DATE = "due_date"
 ATTR_TASKS_LIST = "tasks_list"
 
-#Services names
+# Services names
 SERVICE_NEW_TASK = "new_task"
 SERVICE_COMPLETE_TASK = "complete_task"

@@ -5,14 +5,12 @@ For more details about this component, please refer to
 https://github.com/BlueBlueBlob/gtasks
 """
 import os
-import asyncio
 from datetime import timedelta, date, datetime
 import unicodedata
 import logging
 import voluptuous as vol
 from homeassistant import config_entries
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers import discovery, entity_component
 from homeassistant.util import Throttle
 from homeassistant.core import callback
 
@@ -30,12 +28,10 @@ from .const import (
     DOMAIN_DATA,
     DOMAIN,
     ISSUE_URL,
-    PLATFORMS,
     REQUIRED_FILES,
     VERSION,
     CONF_CREDENTIALS_LOCATION,
     CONF_TOKEN_PATH,
-    CONF_TOKEN_NAME,
     CONF_TASKS_LISTS,
     ATTR_TASK_TITLE,
     ATTR_TASKS_LIST,
@@ -79,9 +75,9 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Optional(CONF_CREDENTIALS_LOCATION, default= DEFAULT_CREDENTIALS_LOCATION): cv.isfile,
+                vol.Optional(CONF_CREDENTIALS_LOCATION, default=DEFAULT_CREDENTIALS_LOCATION): cv.isfile,
                 vol.Required(CONF_TASKS_LISTS): vol.All(cv.ensure_list, [cv.string]),
-                vol.Optional(CONF_TOKEN_PATH, default = DEFAULT_TOKEN_LOCATION): cv.isdir,
+                vol.Optional(CONF_TOKEN_PATH, default=DEFAULT_TOKEN_LOCATION): cv.isdir,
             }
         )
     },
@@ -95,18 +91,23 @@ async def async_setup(hass, config):
     hass.data[DOMAIN_DATA] = {}
     return True
 
+
 def add_task_helper(client, list_id, task):
+    """Async helper function for adding task."""
     client._service.tasks().insert(tasklist=list_id, body=task).execute()
 
+
 def complete_task_helper(service, client, list_id, task_name):
+    """Async helper function for completing task."""
     task_id = client.gapi.get_task_id(list_id, task_name)
     task_to_complete = service.tasks().get(tasklist=list_id, task=task_id).execute()
     task_to_complete['status'] = 'completed'
     service.tasks().update(tasklist=list_id, task=task_to_complete['id'], body=task_to_complete).execute()
 
+
 async def async_setup_entry(hass, config_entry):
     """Set up this integration using UI."""
-    
+
     conf = hass.data.get(DOMAIN_DATA)
     if config_entry.source == config_entries.SOURCE_IMPORT:
         if conf is None:
@@ -131,18 +132,18 @@ async def async_setup_entry(hass, config_entry):
     hass.data[DOMAIN_DATA]["tasks_lists"] = tasks_lists
     try:
         gapi = await hass.async_add_executor_job(GtasksAPI, creds, token_file)
-        _LOGGER.info('gapi : {}'.format(gapi))
-    except Exception as e:
-        _LOGGER.exception(e)
+        _LOGGER.info('gapi : %s', gapi)
+    except Exception as error:
+        _LOGGER.exception(error)
         return False
     try:
-        hass.data[DOMAIN_DATA]["gapi"]  = gapi
+        hass.data[DOMAIN_DATA]["gapi"] = gapi
         hass.data[DOMAIN_DATA]["client"] = await hass.async_add_executor_job(GtasksData, hass, gapi, tasks_lists)
-        _LOGGER.info('client : {}'.format(hass.data[DOMAIN_DATA]["client"]))
-    except Exception as e:
-        _LOGGER.exception(e)
+        _LOGGER.info('client : %s', hass.data[DOMAIN_DATA]["client"])
+    except Exception as error:
+        _LOGGER.exception(error)
         return False
-    _LOGGER.info('data : {}'.format(hass.data[DOMAIN_DATA]))
+    _LOGGER.info('data : %s', hass.data[DOMAIN_DATA])
     # Add binary_sensor
     hass.async_add_job(
         hass.config_entries.async_forward_entry_setup(config_entry, "binary_sensor")
@@ -156,42 +157,41 @@ async def async_setup_entry(hass, config_entry):
     @callback
     async def new_task(call):
         title = call.data.get(ATTR_TASK_TITLE)
-        list = call.data.get(ATTR_TASKS_LIST)
+        task_list = call.data.get(ATTR_TASKS_LIST)
         due_date = call.data.get(ATTR_DUE_DATE, None)
         client = hass.data[DOMAIN_DATA]["client"]
-        list_id = client.tasks_lists_id[list]
+        list_id = client.tasks_lists_id[task_list]
         task = {}
         task['title'] = title
         if due_date:
-             task['due'] = datetime.strftime(due_date, '%Y-%m-%dT00:00:00.000Z')
+            task['due'] = datetime.strftime(due_date, '%Y-%m-%dT00:00:00.000Z')
 
-        _LOGGER.debug('task : {}'.format(task))
+        _LOGGER.debug('task : %s', task)
         try:
-            list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
+            task_list = unicodedata.normalize('NFKD', task_list).encode('ascii', 'ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             await hass.async_add_executor_job(add_task_helper, client, list_id, task)
-        except Exception as e:
-            _LOGGER.exception(e)
-            
+        except Exception as error:
+            _LOGGER.exception(error)
+
     @callback
     async def complete_task(call):
         task_name = call.data.get(ATTR_TASK_TITLE)
-        list = call.data.get(ATTR_TASKS_LIST)
+        task_list = call.data.get(ATTR_TASKS_LIST)
         client = hass.data[DOMAIN_DATA]["client"]
-        list_id = client.tasks_lists_id[list]
+        list_id = client.tasks_lists_id[task_list]
         service = client._service
         try:
-            list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
+            task_list = unicodedata.normalize('NFKD', task_list).encode('ascii', 'ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             await hass.async_add_executor_job(complete_task_helper, service, client, list_id, task_name)
-        except Exception as e:
-            _LOGGER.exception(e)
-    
-    #Register "new_task" service
+        except Exception as error:
+            _LOGGER.exception(error)
+
+    # Register "new_task" service
     hass.services.async_register(
         DOMAIN, SERVICE_NEW_TASK, new_task, schema=NEW_TASK_SCHEMA
     )
 
-
-    #Register "comple_task" service
+    # Register "comple_task" service
     hass.services.async_register(
         DOMAIN, SERVICE_COMPLETE_TASK, complete_task, schema=COMPLETE_TASK_SCHEMA
     )
@@ -208,34 +208,37 @@ class GtasksData:
         self.gapi = gapi
         self._service = self.gapi.service
         self.tasks_lists_id = {}
-        _LOGGER.debug('gapi : {} , service : {}'.format(self.gapi,self._service))
+        _LOGGER.debug('gapi : %s , service : %s', self.gapi, self._service)
         self.tasks_lists = tasks_lists
-        for list in tasks_lists:
-            self.tasks_lists_id[list] = self.gapi.get_taskslist_id(list)
-        _LOGGER.debug('task list id : {}'.format(self.tasks_lists_id))
+        for task_list in tasks_lists:
+            self.tasks_lists_id[task_list] = self.gapi.get_taskslist_id(task_list)
+        _LOGGER.debug('task list id : %s', self.tasks_lists_id)
 
     async def update_data(self, list_name):
-        request_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list_name], showCompleted= False)
+        """Runs the update of the main sensor."""
+        request_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list_name], showCompleted=False)
         tag_sensor = list_name + CONF_SENSOR + "_data"
         try:
             tasks_list_sensor = await self.hass.async_add_executor_job(request_sensor.execute)
             self.hass.data[DOMAIN_DATA][tag_sensor] = tasks_list_sensor.get('items', None)
-            _LOGGER.debug('tasks_list : {}'.format(tasks_list_sensor))
-        except Exception as e:
-            _LOGGER.exception(e)
+            _LOGGER.debug('tasks_list : %s', tasks_list_sensor)
+        except Exception as error:
+            _LOGGER.exception(error)
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def update_binary_data(self, list_name):
+        """Runs the update of the binary sensor."""
         today = date.today().strftime('%Y-%m-%dT00:00:00.000Z')
-        for list in self.tasks_lists:
-            request_binary_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list], showCompleted=False, dueMax=today )
-            tag_binary = list + CONF_BINARY_SENSOR + "_data"
+        for task_list in self.tasks_lists:
+            request_binary_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[task_list], showCompleted=False, dueMax=today)
+            tag_binary = task_list + CONF_BINARY_SENSOR + "_data"
             try:
                 tasks_list_binary = await self.hass.async_add_executor_job(request_binary_sensor.execute)
                 self.hass.data[DOMAIN_DATA][tag_binary] = tasks_list_binary.get('items', None)
-                _LOGGER.debug('tasks_list : {}'.format(tasks_list_binary))
-            except Exception as e:
-                _LOGGER.exception(e)
+                _LOGGER.debug('tasks_list : %s', tasks_list_binary)
+            except Exception as error:
+                _LOGGER.exception(error)
+
 
 async def check_files(hass):
     """Return bool that indicates if all files are present."""
@@ -243,7 +246,7 @@ async def check_files(hass):
     base = f"{hass.config.path()}/custom_components/{DOMAIN}/"
     missing = []
     for file in REQUIRED_FILES:
-        fullpath = "{}{}".format(base, file)
+        fullpath = f"{base}{file}"
         if not os.path.exists(fullpath):
             missing.append(file)
 
@@ -263,14 +266,14 @@ async def async_remove_entry(hass, config_entry):
             config_entry, "binary_sensor"
         )
 
-    except ValueError as e:
-        _LOGGER.error(e)
+    except ValueError as error:
+        _LOGGER.error(error)
     _LOGGER.info(
             "Successfully removed binary_sensor from the gtasks integration"
         )
     try:
         await hass.config_entries.async_forward_entry_unload(config_entry, "sensor")
 
-    except ValueError as e:
-        _LOGGER.error(e)
+    except ValueError as error:
+        _LOGGER.error(error)
     _LOGGER.info("Successfully removed sensor from the gtasks integration")

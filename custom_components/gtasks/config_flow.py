@@ -1,7 +1,6 @@
 """Adds config flow for Gtasks."""
 from collections import OrderedDict
 
-import asyncio
 import os
 import logging
 import voluptuous as vol
@@ -9,9 +8,12 @@ import voluptuous as vol
 from homeassistant import config_entries
 from gtasks_api import GtasksAPI
 
-from homeassistant.util.json import load_json
-
-from .const import DOMAIN, DOMAIN_DATA, DEFAULT_TOKEN_LOCATION, CONF_TOKEN_NAME, DEFAULT_CREDENTIALS_LOCATION
+from .const import (
+    CONF_TOKEN_NAME,
+    DEFAULT_CREDENTIALS_LOCATION,
+    DEFAULT_TOKEN_LOCATION,
+    DOMAIN
+    )
 
 DATA_FLOW_IMPL = "gtasks_flow_implementation"
 _LOGGER = logging.getLogger(__name__)
@@ -23,14 +25,15 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
-    
+
     def __init__(self):
-        self._auth_url = "" 
+        self._auth_url = ""
         self.token_file = ""
         self.creds = ""
-        self.gtasks_obj  = None
+        self.gtasks_obj = None
         self.tasks_lists = []
         self.all_lists = []
+        self._errors = {}
 
     async def async_step_init(self, user_input=None):
         """Initialize."""
@@ -47,9 +50,9 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
                     self._auth_url = self.gtasks_obj.auth_url
                 else:
                     return self.async_create_entry(title="Connected", data={})
-        except Exception as e:
-            _LOGGER.exception(e)
-            raise e
+        except Exception as error:
+            _LOGGER.exception(error)
+            raise error
 
         return await self.async_step_config(user_input)
 
@@ -58,6 +61,7 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
         return await self.async_step_init(user_input)
 
     async def async_step_config(self, user_input=None):
+        """Do the first configuration step."""
         pickle_path = ""
         creds = ""
         errors = {}
@@ -65,21 +69,20 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
             if await self.hass.async_add_job(os.path.isfile, user_input["creds"]):
                 if await self.hass.async_add_job(os.path.isdir, user_input["pickle_path"]):
                     try:
-                        self.token_file = '{}/{}'.format(user_input["pickle_path"], CONF_TOKEN_NAME)
+                        self.token_file = f'{user_input["pickle_path"]}/{CONF_TOKEN_NAME}'
                         self.gtasks_obj = await self.hass.async_add_executor_job(
                             GtasksAPI,
                             user_input["creds"],
                             self.token_file)
                         self.creds = user_input["creds"]
-                    except Exception as e:
-                        _LOGGER.exception(e)
-                        raise e
+                    except Exception as error:
+                        _LOGGER.exception(error)
+                        raise error
                     if self.gtasks_obj.auth_url:
                         self._auth_url = self.gtasks_obj.auth_url
                         return await self.async_step_auth()
-                    else:
-                        self.all_lists = await self._get_all_lists()
-                        return await self.async_step_list()
+                    self.all_lists = await self._get_all_lists()
+                    return await self.async_step_list()
                 else:
                     errors["pickle_path"] = "no_token_path"
             else:
@@ -88,14 +91,15 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
         return self.async_show_form(
             step_id="config",
             data_schema=vol.Schema(
-                {
-                    vol.Optional("creds", default = DEFAULT_CREDENTIALS_LOCATION): str,
-                    vol.Optional("pickle_path", default = DEFAULT_TOKEN_LOCATION): str,
-                }),
+              {
+               vol.Optional("creds", default=DEFAULT_CREDENTIALS_LOCATION): str,
+               vol.Optional("pickle_path", default=DEFAULT_TOKEN_LOCATION): str,
+              }),
             errors=errors,
         )
 
     async def async_step_list(self, user_input=None):
+        """List all lists for user to setup."""
         errors = {}
         finish_choice = False
         all_lists_name = self.all_lists
@@ -110,8 +114,8 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
             for list_name in all_lists_name:
                 if list_name in self.tasks_lists:
                     all_lists_name.remove(list_name)
-            for tl in self.tasks_lists:
-                list_added += tl + " "
+            for task_list in self.tasks_lists:
+                list_added += task_list + " "
             if user_input["finish_choice"]:
                 data = {}
                 data["creds"] = self.creds
@@ -124,7 +128,7 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
             data_schema[vol.Optional("tasks_list")] = vol.In(all_lists_name)
         else:
             data_schema[vol.Required("tasks_list")] = vol.In(all_lists_name)
-        data_schema[vol.Optional("finish_choice", default = False)] = bool
+        data_schema[vol.Optional("finish_choice", default=False)] = bool
         return self.async_show_form(
             step_id="list",
             description_placeholders={"lists_added": list_added},
@@ -133,10 +137,11 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
         )
 
     async def async_step_auth(self, user_input=None):
+        """Give authorization url for user to retrieve code."""
         url = self._auth_url
         if not url:
             return await self.async_step_list()
-        
+
         if user_input is not None:
             if user_input["auth_code"] is not None:
                 try:
@@ -144,9 +149,9 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
                         self.gtasks_obj.finish_login,
                         user_input["auth_code"]
                     )
-                except Exception as e:
-                    _LOGGER.exception(e)
-                    raise e
+                except Exception as error:
+                    _LOGGER.exception(error)
+                    raise error
                 self.all_lists = await self._get_all_lists()
                 return await self.async_step_list()
 
@@ -174,7 +179,7 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
             all_lists = await self.hass.async_add_executor_job(request.execute)
             for taskslist in all_lists['items']:
                 all_lists_name.append(taskslist['title'])
-        except Exception as e:
-            _LOGGER.exception(e)
-            raise e
+        except Exception as error:
+            _LOGGER.exception(error)
+            raise error
         return all_lists_name

@@ -1,7 +1,8 @@
 """Sensor platform for Gtasks."""
-from homeassistant.helpers.entity import Entity
-from datetime import timedelta, date, datetime
+import logging
+from datetime import datetime
 from uuid import getnode as get_mac
+from homeassistant.helpers.entity import Entity
 
 from .const import (
     ATTRIBUTION,
@@ -13,10 +14,9 @@ from .const import (
     CONF_SENSOR,
 )
 
-from datetime import datetime, timedelta
-import logging
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_platform(
     hass, config, async_add_entities, discovery_info=None
@@ -28,17 +28,20 @@ async def async_setup_platform(
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Setup sensor platform."""
     tasks_lists = hass.data[DOMAIN_DATA]["tasks_lists"]
-    for list in tasks_lists:
-        async_add_devices([GtasksSensor(hass, {} , list)], True)
+    for task_list in tasks_lists:
+        async_add_devices([GtasksSensor(hass, {}, task_list)], True)
 
 
 def helper_task(task_list, data):
-    for t in task_list:
+    """Gets incomplete tasks."""
+    for task in task_list:
         jtask = {}
-        jtask["task_title"] = '{}'.format(t.title)
-        jtask["due_date"] = '{}'.format(t.due_date)
-        if not t.complete: data.append(jtask)
+        jtask["task_title"] = f'{task.title}'
+        jtask["due_date"] = f'{task.due_date}'
+        if not task.complete:
+            data.append(jtask)
     return data
+
 
 class GtasksSensor(Entity):
     """blueprint Sensor class."""
@@ -48,8 +51,8 @@ class GtasksSensor(Entity):
         self.attr = {}
         self._state = 0
         self._list = list_name
-        self._name = '{}_{}'.format(config.get("name", DEFAULT_NAME),self._list)
-        self._unique_id = '{}-{}-{}'.format(get_mac() , CONF_SENSOR, self._name)
+        self._name = f'{config.get("name", DEFAULT_NAME)}_{self._list}'
+        self._unique_id = f'{get_mac()}-{CONF_SENSOR}-{self._name}'
 
     async def async_update(self):
         """Update the sensor."""
@@ -66,9 +69,13 @@ class GtasksSensor(Entity):
             self._state = len(task_list)
             for task in task_list:
                 jtask = {}
-                jtask["task_title"] = '{}'.format(task['title'])
+                jtask["task_title"] = f'{task["title"]}'
                 if 'due' in task:
-                    jtask["due_date"] = datetime.strftime(datetime.strptime(task['due'], '%Y-%m-%dT00:00:00.000Z').date(), '%Y-%m-%d')
+                    jtask["due_date"] = datetime.strftime(
+                                            datetime.strptime(task['due'],
+                                            '%Y-%m-%dT00:00:00.000Z').date(),
+                                            '%Y-%m-%d'
+                                            )
                 data.append(jtask)
 
         # Set/update attributes
