@@ -58,14 +58,14 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
         return await self.async_step_init(user_input)
 
     async def async_step_config(self, user_input=None):
-        token_path = ""
+        pickle_path = ""
         creds = ""
         errors = {}
         if user_input is not None:
             if await self.hass.async_add_job(os.path.isfile, user_input["creds"]):
-                if await self.hass.async_add_job(os.path.isdir, user_input["token_path"]):
+                if await self.hass.async_add_job(os.path.isdir, user_input["pickle_path"]):
                     try:
-                        self.token_file = '{}/{}'.format(user_input["token_path"], CONF_TOKEN_NAME)
+                        self.token_file = '{}/{}'.format(user_input["pickle_path"], CONF_TOKEN_NAME)
                         self.gtasks_obj = await self.hass.async_add_executor_job(
                             GtasksAPI,
                             user_input["creds"],
@@ -81,7 +81,7 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
                         self.all_lists = await self._get_all_lists()
                         return await self.async_step_list()
                 else:
-                    errors["token_path"] = "no_token_path"
+                    errors["pickle_path"] = "no_token_path"
             else:
                 errors["creds"] = "no_creds"
 
@@ -90,8 +90,7 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
             data_schema=vol.Schema(
                 {
                     vol.Optional("creds", default = DEFAULT_CREDENTIALS_LOCATION): str,
-                    vol.Optional("token_path", default = DEFAULT_TOKEN_LOCATION): str,
-                    vol.Optional("test", default = "ATESTER"): str,
+                    vol.Optional("pickle_path", default = DEFAULT_TOKEN_LOCATION): str,
                 }),
             errors=errors,
         )

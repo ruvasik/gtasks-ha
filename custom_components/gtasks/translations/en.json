@@ -11,11 +11,10 @@
               },
             "config": {
                 "title": "Set up Component",
-                "description": "Your credentials json file need to be uploaded before",
+                "description": "Your credentials json file need to be uploaded before this setup",
                 "data": {
                      "creds": "Your credentials.json file ( .\/credentials.json )",
-                     "token_path": "Writable path ( .\/custom_components\/gtasks )",
-		     "test": "Something something"
+                     "pickle_path": "Writable path ( .\/custom_components\/gtasks )"
                 }
               },
             "list": {
