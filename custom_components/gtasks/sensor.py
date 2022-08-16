@@ -63,8 +63,6 @@ class GtasksSensor(Entity):
         if task_list is None:
             self._state = 0
         else:
-            #self._state = await self.hass.async_add_executor_job(len, task_list)
-            #data = await self.hass.async_add_executor_job(helper_task, task_list, data)
             self._state = len(task_list)
             for task in task_list:
                 jtask = {}

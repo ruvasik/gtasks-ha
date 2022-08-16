@@ -4,14 +4,14 @@
         "step": {
             "auth": {
                 "title": "Authentication",
-                "description": "Do authentication on this {url} and paste the authentication code",
+                "description": "Click the below URL and complete the authentication. Once you get to page not found check the url and copy the code between 'code=' and '&'. \n {url}",
                 "data": {
                     "auth_code": "Authorization return code"
                 }
               },
             "config": {
-                "title": "Set up Component",
-                "description": "Your credentials json file need to be uploaded before this setup",
+                "title": "Setup Component",
+                "description": "Your credentials.json file needs to be uploaded before starting this setup",
                 "data": {
                      "creds": "Your credentials.json file ( .\/credentials.json )",
                      "pickle_path": "Writable path ( .\/custom_components\/gtasks )"
@@ -27,20 +27,20 @@
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
+            "auth": "Username/Password is wrong",
             "timeout": "Timeout validating code",
             "invalid_code": "Invalid code",
-            "unknown": "Unknown error validating code",
-            "internal_error": "Internal error validating code",
-            "no_creds": "Credentials file is not found",
-            "no_token_path": "Token path is not found",
-            "no_list": "Choose one list at least"
+            "unknown": "Unknown error while validating code",
+            "internal_error": "Internal error while validating code",
+            "no_creds": "Credentials file not found",
+            "no_token_path": "Token path not found",
+            "no_list": "Choose at least one list"
         },
         "abort": {
-            "single_instance_allowed": "Only a single configuration of Google Tasks is allowed.",
-            "already_setup": "You can only configure a single Google Tasks account.",
-            "authorize_url_timeout": "Timeout generating authorize url.",
-            "authorize_url_fail": "Unknown error generating an authorize url."
+            "single_instance_allowed": "Only a single configuration of Google Tasks is allowed",
+            "already_setup": "You can only configure a single Google Tasks account",
+            "authorize_url_timeout": "Timeout generating authorization url",
+            "authorize_url_fail": "Unknown error generating an authorization url"
         }
     }
 }

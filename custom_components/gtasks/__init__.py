@@ -169,9 +169,6 @@ async def async_setup_entry(hass, config_entry):
         try:
             list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             await hass.async_add_executor_job(add_task_helper, client, list_id, task)
-            #asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
-            #    hass,
-            #    '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
         except Exception as e:
             _LOGGER.exception(e)
             
@@ -185,9 +182,6 @@ async def async_setup_entry(hass, config_entry):
         try:
             list = unicodedata.normalize('NFKD', list).encode('ascii','ignore').decode("utf-8").translate({ord(c): None for c in '!@#$'})
             await hass.async_add_executor_job(complete_task_helper, service, client, list_id, task_name)
-            #asyncio.run_coroutine_threadsafe(entity_component.async_update_entity(
-            #    hass,
-            #    '{}.{}_{}'.format(CONF_SENSOR, DOMAIN, list.lower())) , hass.loop)
         except Exception as e:
             _LOGGER.exception(e)
     

@@ -8,6 +8,7 @@ new_task:
       description: "The list name"
       example: "My Task List"
     due_date:
+      description: "The due date for the task"
       example: '2023-03-26'
       
 complete_task:

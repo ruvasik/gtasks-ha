@@ -1,6 +1,5 @@
 """Binary sensor platform for gtasks."""
 from homeassistant.components.binary_sensor import BinarySensorEntity
-#from homeassistant.components.binary_sensor import BinarySensorDevice
 from datetime import timedelta, date, datetime
 from uuid import getnode as get_mac
 
@@ -52,8 +51,6 @@ class GtasksBinarySensor(BinarySensorEntity):
         else:
             for task in passed_list:
                 dict = {}
-                #dict['due_data'] = '{}'.format(task.due_date)
-                #tdelta = date.today() - task.due_date
                 dict['taskt_title'] = '{}'.format(task['title'])
                 dict['due_date'] = datetime.strftime(datetime.strptime(task['due'], '%Y-%m-%dT00:00:00.000Z').date(), '%Y-%m-%d')
                 tdelta = date.today() - datetime.strptime(task['due'], '%Y-%m-%dT00:00:00.000Z').date()
