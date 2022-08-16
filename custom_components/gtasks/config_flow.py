@@ -11,7 +11,7 @@ from gtasks_api import GtasksAPI
 
 from homeassistant.util.json import load_json
 
-from .const import DOMAIN, DOMAIN_DATA, DEFAULT_TOKEN_LOCATION, CONF_TOKEN_NAME
+from .const import DOMAIN, DOMAIN_DATA, DEFAULT_TOKEN_LOCATION, CONF_TOKEN_NAME, DEFAULT_CREDENTIALS_LOCATION
 
 DATA_FLOW_IMPL = "gtasks_flow_implementation"
 _LOGGER = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
             step_id="config",
             data_schema=vol.Schema(
                 {
-                    vol.Required("creds") : str,
+                    vol.Optional("creds", default = DEFAULT_CREDENTIALS_LOCATION): str,
                     vol.Optional("token_path", default = DEFAULT_TOKEN_LOCATION): str,
                 }),
             errors=errors,

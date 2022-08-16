@@ -26,6 +26,7 @@ from .const import (
     CONF_SENSOR,
     DEFAULT_NAME,
     DEFAULT_TOKEN_LOCATION,
+    DEFAULT_CREDENTIALS_LOCATION,
     DOMAIN_DATA,
     DOMAIN,
     ISSUE_URL,
@@ -78,7 +79,7 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
-                vol.Required(CONF_CREDENTIALS_LOCATION): cv.isfile,
+                vol.Optional(CONF_CREDENTIALS_LOCATION, default= DEFAULT_CREDENTIALS_LOCATION): cv.isfile,
                 vol.Required(CONF_TASKS_LISTS): vol.All(cv.ensure_list, [cv.string]),
                 vol.Optional(CONF_TOKEN_PATH, default = DEFAULT_TOKEN_LOCATION): cv.isdir,
             }
