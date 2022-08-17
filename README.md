@@ -1,4 +1,4 @@
-## Gtasks-Ha a Google Tasks Custom Component for Home Assistant
+## Gtasks-Ha a Go Tasks Custom Component for Home Assistant
 Forked from original repo by [@BlueBlueBlob](https://github.com/blueblueblob)
 
 You will probably also want to install the lovelace card to make best use of this. [lovelace-gtasks-card](https://github.com/myntath/lovelace-gtasks-card)
@@ -8,31 +8,33 @@ Create a create a credentials.json from [Google API](https://console.developers.
 
 ## Installation
 
-# Using HACS
+# Using HACS (Recommended)
 
 1. Add this repo as a custom repository in HACS.
 2. Install through HACS.
 3. Restart HACS.
-4. Upload your credentials.json file to a directory that HA can read. i.e. `./custom_components/gtasks/credentials.json` 
-5. Restart Home Assistant
-6. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Google Tasks"
-7. Copy paste authentication url in your browser (don't need to be on host)
-8. Authenticate and copy paste the result code in HA to finish integration.
+4. Upload your credentials.json file to a directory that HA can read. i.e. `./custom_components/gtasks/credentials.json`.
+5. Restart Home Assistant.
+6. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "GTasks".
+7. Enter the pathe to your credentials.json file and a writable path for the component to store information.
+8. Click the authorisation URL.
+9. Authenticate and once you reach a 404 page not found look at the url and copy and paste the code between 'code=' and '&scope='.
 
 # Manually
 
-1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
-2. If you do not have a `custom_components` directory (folder) there, you need to create it.
-3. In the `custom_components` directory (folder) create a new folder called `gtasks`.
-4. Download _all_ the files from the `custom_components/gtasks/` directory (folder) in this repository.
-5. Place the files you downloaded in the new directory (folder) you created.
-6. Upload your credentials.json file to a directory that HA can read. i.e. `./custom_components/gtasks/credentials.json` 
-7. Restart Home Assistant
-8. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Google Tasks"
-9. Copy paste authentication url in your browser (don't need to be on host)
-10. Authenticate and copy paste the result code in HA to finish integration.
+1. Open the directory for your HA configuration (where you find `configuration.yaml`).
+2. If you do not have a `custom_components` directory there, you need to create it.
+3. In the `custom_components` directory create a new directory called `gtasks`.
+4. Download _all_ the files from the `custom_components/gtasks/` directory in this repository.
+5. Place the files you downloaded in the new directory you created.
+6. Upload your credentials.json file to a directory that HA can read. i.e. `./custom_components/gtasks/credentials.json`.
+7. Restart Home Assistant.
+8. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "GTasks".
+9. Enter the pathe to your credentials.json file and a writable path for the component to store information.
+10. Click the authorisation URL.
+11. Authenticate and once you reach a 404 page not found look at the url and copy and paste the code between 'code=' and '&scope='.
 
-Using your HA configuration directory (folder) as a starting point you should now also have this:
+Using your HA configuration directory as a starting point you should now also have this:
 
 ```text
 custom_components/gtasks/translations/en.json
