@@ -89,6 +89,7 @@ async def async_setup(hass, config):
     """Set up this component using YAML."""
     # Create DATA dict
     hass.data[DOMAIN_DATA] = {}
+    _LOGGER.debug('setup_config_data: %s', config)
     return True
 
 
@@ -229,15 +230,14 @@ class GtasksData:
     async def update_binary_data(self, list_name):
         """Runs the update of the binary sensor."""
         today = date.today().strftime('%Y-%m-%dT00:00:00.000Z')
-        for task_list in self.tasks_lists:
-            request_binary_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[task_list], showCompleted=False, dueMax=today)
-            tag_binary = task_list + CONF_BINARY_SENSOR + "_data"
-            try:
-                tasks_list_binary = await self.hass.async_add_executor_job(request_binary_sensor.execute)
-                self.hass.data[DOMAIN_DATA][tag_binary] = tasks_list_binary.get('items', None)
-                _LOGGER.debug('tasks_list : %s', tasks_list_binary)
-            except Exception as error:
-                _LOGGER.exception(error)
+        request_binary_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list_name], showCompleted=False, dueMax=today)
+        tag_binary = list_name + CONF_BINARY_SENSOR + "_data"
+        try:
+            tasks_list_binary = await self.hass.async_add_executor_job(request_binary_sensor.execute)
+            self.hass.data[DOMAIN_DATA][tag_binary] = tasks_list_binary.get('items', None)
+            _LOGGER.debug('tasks_list_binary : %s', tasks_list_binary)
+        except Exception as error:
+            _LOGGER.exception(error)
 
 
 async def check_files(hass):
