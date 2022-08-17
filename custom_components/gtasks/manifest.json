@@ -8,7 +8,10 @@
     "@Myntath"
   ],
   "requirements": [
-    "integrationhelper"
+    "integrationhelper",
+    "google-api-python-client",
+    "google-auth-httplib2",
+    "google-auth-oauthlib"
   ],
   "version": "0.5.1"
 }
