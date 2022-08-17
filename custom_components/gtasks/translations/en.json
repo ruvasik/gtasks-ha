@@ -4,7 +4,7 @@
         "step": {
             "auth": {
                 "title": "Authentication",
-                "description": "Click the below URL and complete the authentication. Once you get to page not found check the url and copy the code between 'code=' and '&'. \n {url}",
+                "description": "Click the below URL and complete the authentication. Once you get to page not found check the url and copy the code between 'code=' and '&scope='. \n {url}",
                 "data": {
                     "auth_code": "Authorization return code"
                 }
