@@ -14,7 +14,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.util import Throttle
 from homeassistant.core import callback
 
-from gtasks_api import GtasksAPI
+from .gtasks_api import GtasksAPI
 
 from integrationhelper.const import CC_STARTUP_VERSION
 

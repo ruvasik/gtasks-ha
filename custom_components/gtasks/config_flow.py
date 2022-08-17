@@ -6,7 +6,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant import config_entries
-from gtasks_api import GtasksAPI
+from .gtasks_api import GtasksAPI
 
 from .const import (
     CONF_TOKEN_NAME,
