@@ -1,14 +1,14 @@
-## Gtasks-Ha a Go Tasks Custom Component for Home Assistant
+## Gtasks-Ha a Google Tasks Custom Component for Home Assistant
 Forked from original repo by [@BlueBlueBlob](https://github.com/blueblueblob)
 
 You will probably also want to install the lovelace card to make best use of this. [lovelace-gtasks-card](https://github.com/myntath/lovelace-gtasks-card)
 
 ## Before installation
-Create a create a credentials.json from [Google API](https://console.developers.google.com/apis/credentials)
+Create a create a credentials.json (type Desktop) from [Google API](https://console.developers.google.com/apis/credentials)
 
 ## Installation
 
-# Using HACS (Recommended)
+### Using HACS (Recommended)
 
 1. Add this repo as a custom repository in HACS.
 2. Install through HACS.
@@ -20,7 +20,7 @@ Create a create a credentials.json from [Google API](https://console.developers.
 8. Click the authorisation URL.
 9. Authenticate and once you reach a 404 page not found look at the url and copy and paste the code between 'code=' and '&scope='.
 
-# Manually
+### Manually
 
 1. Open the directory for your HA configuration (where you find `configuration.yaml`).
 2. If you do not have a `custom_components` directory there, you need to create it.
