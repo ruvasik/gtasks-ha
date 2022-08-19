@@ -61,22 +61,57 @@ class GtasksSensor(Entity):
 
         # Get new data (if any)
         task_list = self.hass.data[DOMAIN_DATA].get(self._list + CONF_SENSOR + "_data", None)
-        data = []
+        data = {}
         # Check the data and update the value.
         if task_list is None:
             self._state = 0
         else:
             self._state = len(task_list)
+            parent_tasks = []
+            child_tasks = []
             for task in task_list:
+                if task.get('parent', None):
+                    child_tasks.append(task)
+                else:
+                    parent_tasks.append(task)
+
+            # Add parents
+            for task in parent_tasks:
                 jtask = {}
                 jtask["task_title"] = f'{task["title"]}'
+                jtask["id"] = f'{task["id"]}'
+                jtask["children"] = []
                 if 'due' in task:
                     jtask["due_date"] = datetime.strftime(
                                             datetime.strptime(task['due'],
                                             '%Y-%m-%dT00:00:00.000Z').date(),
                                             '%Y-%m-%d'
                                             )
-                data.append(jtask)
+                data[jtask['id']] = jtask
+
+            # Add children
+            for task in child_tasks:
+                if data.get(task['parent'], None):
+                    jtask = {}
+                    jtask["task_title"] = f'{task["title"]}'
+                    if 'due' in task:
+                        jtask["due_date"] = datetime.strftime(
+                                                datetime.strptime(task['due'],
+                                                '%Y-%m-%dT00:00:00.000Z').date(),
+                                                '%Y-%m-%d'
+                                                )
+                    else:
+                        jtask["due_date"] = '9999'
+                    data[task['parent']]['children'].append(jtask)
+                else:
+                    # No Parent? maybe a deeper level for now only first level
+                    pass
+
+            # Sort children
+            data = list(data.values())
+            for task in data:
+                if len(task['children']) > 0:
+                    task['children'].sort(key=lambda x: x['due_date'])
 
         # Set/update attributes
         self.attr["attribution"] = ATTRIBUTION
