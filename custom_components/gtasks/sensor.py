@@ -100,8 +100,6 @@ class GtasksSensor(Entity):
                                                 '%Y-%m-%dT00:00:00.000Z').date(),
                                                 '%Y-%m-%d'
                                                 )
-                    else:
-                        jtask["due_date"] = '9999'
                     data[task['parent']]['children'].append(jtask)
                 else:
                     # No Parent? maybe a deeper level for now only first level
@@ -111,11 +109,16 @@ class GtasksSensor(Entity):
             data = list(data.values())
             for task in data:
                 if len(task['children']) > 0:
-                    task['children'].sort(key=lambda x: x['due_date'])
+                    task['children'].sort(key=self.sort_child)
 
         # Set/update attributes
         self.attr["attribution"] = ATTRIBUTION
         self.attr["tasks"] = data
+
+    def sort_child(self, x):
+        if not x.get('due_date', None):
+            return '9999'
+        return x['due_date']
 
     @property
     def unique_id(self):
