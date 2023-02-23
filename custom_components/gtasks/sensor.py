@@ -87,6 +87,12 @@ class GtasksSensor(Entity):
                                             '%Y-%m-%dT00:00:00.000Z').date(),
                                             '%Y-%m-%d'
                                             )
+                    jtask["due_time"] = datetime.strftime(
+                                            datetime.strptime(task['due'],
+                                            '%Y-%m-%dT00:00:00.000Z').date(),
+                                            '%H:%M:%S'
+                                            )
+                    jtask["due"] = task['due']
                 data[jtask['id']] = jtask
 
             # Add children
@@ -100,6 +106,12 @@ class GtasksSensor(Entity):
                                                 '%Y-%m-%dT00:00:00.000Z').date(),
                                                 '%Y-%m-%d'
                                                 )
+                        jtask["due_time"] = datetime.strftime(
+                                                datetime.strptime(task['due'],
+                                                '%Y-%m-%dT00:00:00.000Z').date(),
+                                                '%H:%M:%S'
+                                                )
+                        jtask["due"] = task['due']
                     data[task['parent']]['children'].append(jtask)
                 else:
                     # No Parent? maybe a deeper level for now only first level
