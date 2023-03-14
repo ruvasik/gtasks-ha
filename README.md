@@ -49,10 +49,10 @@ custom_components/gtasks/sensor.py
 
 ## Tips
 
-- If the Google refresh token is revoked or otherwise not working you may need to delete the component and setup again. This can happen if you change your password or through various other means.
+- If the Google refresh token is revoked or otherwise not working you may need to delete the component and setup again. This can happen if you change your password or through various other means. In addition make sure you delete the 'token.pickle' file which was created in your writable path.
 
 - If the refresh token is being revoked every 7 days make sure that in Google OAuth you have set the publishing status of your Google OAuth consent screen to 'In production'.
-If the statis is still in testing then the token expires after 7 days.
+If the status is still in testing then the token expires after 7 days.
 
 - Your OAuth Client ID must be type 'Desktop'.
 
