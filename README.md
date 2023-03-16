@@ -16,7 +16,7 @@ Create a create a credentials.json (type Desktop) from [Google API](https://cons
 4. Upload your credentials.json file to a directory that HA can read. i.e. `./custom_components/gtasks/credentials.json`.
 5. Restart Home Assistant.
 6. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "GTasks".
-7. Enter the pathe to your credentials.json file and a writable path for the component to store information.
+7. Enter the path to your credentials.json file and a writable path for the component to store information.
 8. Click the authorisation URL.
 9. Authenticate and once you reach a 404 page not found look at the url and copy and paste the code between 'code=' and '&scope='.
 
@@ -30,7 +30,7 @@ Create a create a credentials.json (type Desktop) from [Google API](https://cons
 6. Upload your credentials.json file to a directory that HA can read. i.e. `./custom_components/gtasks/credentials.json`.
 7. Restart Home Assistant.
 8. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "GTasks".
-9. Enter the pathe to your credentials.json file and a writable path for the component to store information.
+9. Enter the path to your credentials.json file and a writable path for the component to store information.
 10. Click the authorisation URL.
 11. Authenticate and once you reach a 404 page not found look at the url and copy and paste the code between 'code=' and '&scope='.
 
@@ -49,10 +49,10 @@ custom_components/gtasks/sensor.py
 
 ## Tips
 
-- If the Google refresh token is revoked or otherwise not working you may need to delete the component and setup again. This can happen if you change your password or through various other means.
+- If the Google refresh token is revoked or otherwise not working you may need to delete the component and setup again. This can happen if you change your password or through various other means. In addition make sure you delete the 'token.pickle' file which was created in your writable path.
 
 - If the refresh token is being revoked every 7 days make sure that in Google OAuth you have set the publishing status of your Google OAuth consent screen to 'In production'.
-If the statis is still in testing then the token expires after 7 days.
+If the status is still in testing then the token expires after 7 days.
 
 - Your OAuth Client ID must be type 'Desktop'.
 
