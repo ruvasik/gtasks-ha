@@ -13,5 +13,5 @@
     "google-auth-httplib2",
     "google-auth-oauthlib"
   ],
-  "version": "0.5.3"
+  "version": "0.6.0"
 }
