@@ -18,13 +18,6 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(
-    hass, config, async_add_entities, discovery_info=None
-):  # pylint: disable=unused-argument
-    """Setup sensor platform."""
-    async_add_entities([GtasksSensor(hass, discovery_info)], True)
-
-
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Setup sensor platform."""
     tasks_lists = hass.data[DOMAIN_DATA]["tasks_lists"]
@@ -128,9 +121,7 @@ class GtasksSensor(Entity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
-            "manufacturer": "Gtasks",
+            "identifiers": {(DOMAIN)},
         }
 
     @property

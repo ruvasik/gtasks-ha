@@ -1,4 +1,5 @@
 """Binary sensor platform for gtasks."""
+import logging
 from datetime import date, datetime
 from uuid import getnode as get_mac
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -11,13 +12,7 @@ from .const import (
     CONF_BINARY_SENSOR,
 )
 
-
-async def async_setup_platform(
-    hass, config, async_add_entities, discovery_info=None
-):  # pylint: disable=unused-argument
-    """Setup binary_sensor platform."""
-    async_add_entities([GtasksBinarySensor(hass, discovery_info)], True)
-
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Setup sensor platform."""
@@ -77,8 +72,8 @@ class GtasksBinarySensor(BinarySensorEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self.unique_id)},
-            "name": self.name,
+            "identifiers": {(DOMAIN)},
+            "name": DOMAIN,
             "manufacturer": "Gtasks",
         }
 
