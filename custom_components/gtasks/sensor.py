@@ -121,7 +121,7 @@ class GtasksSensor(Entity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN)},
+            "identifiers": {(DOMAIN,'google')},
         }
 
     @property
