@@ -61,4 +61,4 @@ use the code to setup the integration.
  
 - If you have a service running on localhost you may need to temporarily halt it or else look at the request headers when you finish the google authorisation.
 
-- If you need further help you can post in here or else at https://community.home-assistant.io/t/custom-component-google-tasks-abandoned/141985/95
+- If you need further help you can post in here or else at https://community.home-assistant.io/t/custom-component-google-tasks-revived/548380
