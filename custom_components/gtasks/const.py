@@ -2,7 +2,7 @@
 # Base component constants
 DOMAIN = "gtasks"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.6.0"
+VERSION = "0.6.1"
 PLATFORMS = ["sensor", "binary_sensor"]
 REQUIRED_FILES = [
     ".translations/en.json",
