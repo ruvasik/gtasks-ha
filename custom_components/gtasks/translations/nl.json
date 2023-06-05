@@ -1,0 +1,46 @@
+{
+    "config": {
+        "title": "Google Taken",
+        "step": {
+            "auth": {
+                "title": "Authenticatie",
+                "description": "Klik op de onderstaande URL en voltooi de authenticatie. Zodra u op pagina niet gevonden bent, controleert u de URL en kopieert u de code tussen 'code=' en '&scope='. \n {url}",
+                "data": {
+                    "auth_code": "Autorisatie retourcode"
+                }
+              },
+            "config": {
+                "title": "Installatie Component",
+                "description": "Uw credentials.json bestand moet worden geüpload voordat u deze installatie start",
+                "data": {
+                     "creds": "Uw credentials.json bestand ( .\/credentials.json )",
+                     "pickle_path": "Beschrijfbaar pad ( .\/custom_components\/gtasks )"
+                }
+              },
+            "list": {
+            "title": "Uw takenlijsten",
+                "description": "Kies lijst(en) die u wilt toevoegen: {lists_added}",
+                "data": {
+                    "tasks_list": "Alle lijsten",
+                    "finish_choice": "Vink aan om het instellen te voltooien"
+                }
+            }
+        },
+        "error": {
+            "auth": "Gebruikersnaam/Wachtwoord is verkeerd",
+            "timeout": "Time-out validatiecode",
+            "invalid_code": "Ongeldige code",
+            "unknown": "Onbekende fout tijdens het valideren van de code",
+            "internal_error": "Interne fout tijdens het valideren van de code",
+            "no_creds": "credentials.json bestand niet gevonden",
+            "no_token_path": "Token pad niet gevonden",
+            "no_list": "Kies ten minste één lijst"
+        },
+        "abort": {
+            "single_instance_allowed": "Slechts één enkele configuratie van Google Taken is toegestaan",
+            "already_setup": "Je kunt maar één Google Taken account configureren",
+            "authorize_url_timeout": "Time-out bij het genereren van autorisatie-URL",
+            "authorize_url_fail": "Onbekende fout bij het genereren van een autorisatie-URL"
+        }
+    }
+}
