@@ -9,7 +9,10 @@ Create a create a credentials.json (type Desktop) from [Google API](https://cons
 If you haven't done this before detailed instructions are below but you may be able to skip some of these steps if you have previously setup some Google API Authorisations
 1. Go to [Google API](https://console.developers.google.com/apis/credentials)
 2. Click '+ CREATE CREDENTIALS' (in blue near top of the screen) and select OAuth client ID
-3. If you haven't configured the consent screen before you will be asked to do that now.
+3. If you haven't created a project you will be given an option to do so, click that.
+   - Give the project any name.
+   - Location can be left as is.
+5. If you haven't configured the consent screen before you will be asked to do that now.
    - Choose User Type External and then continue. (Internal may also be OK but is only available to Google Workspace users)
    - Enter any App Name you want.
    - Enter any User support email you want.
@@ -18,10 +21,10 @@ If you haven't done this before detailed instructions are below but you may be a
    - You do not need to enter any scopes. Just click SAVE AND CONTINUE
    - Add your google account as a test user then click SAVE AND CONTINUE.
    - After reaching the summary return to the credentials page and click '+ CREATE CREDENTIALS' again and select OAuth client ID.
-4. Choose 'Desktop app' for the Application type and choose any name and press CREATE
-5. In the popup click 'DOWNLOAD JSON' a file called 'client_secret_XXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com.json' will be saved. Rename this 'credentials.json' or another name.
-6. Click 'Enabled APIs & Services' in the left bar.
-7. Search for 'Google tasks API' and select this result and click 'Enable'
+6. Choose 'Desktop app' for the Application type and choose any name and press CREATE
+7. In the popup click 'DOWNLOAD JSON' a file called 'client_secret_XXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com.json' will be saved. Rename this 'credentials.json' or another name.
+8. Click 'Enabled APIs & Services' in the left bar.
+9. Search for 'Google tasks API' and select this result and click 'Enable'
 
 ## Installation
 
