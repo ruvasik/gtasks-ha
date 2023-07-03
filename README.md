@@ -20,7 +20,9 @@ If you haven't done this before detailed instructions are below but you may be a
    - Leave other fields empty.
    - You do not need to enter any scopes. Just click SAVE AND CONTINUE
    - Add your google account as a test user then click SAVE AND CONTINUE.
-   - After reaching the summary return to the credentials page and click '+ CREATE CREDENTIALS' again and select OAuth client ID.
+   - After reaching the summary click 'back to dashboard'.
+   - Click 'Publish App'.
+   - Return to the credentials page and click '+ CREATE CREDENTIALS' again and select OAuth client ID.
 6. Choose 'Desktop app' for the Application type and choose any name and press CREATE
 7. In the popup click 'DOWNLOAD JSON' a file called 'client_secret_XXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com.json' will be saved. Rename this 'credentials.json' or another name.
 8. Click 'Enabled APIs & Services' in the left bar.
