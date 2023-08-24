@@ -94,7 +94,8 @@ class GtasksFlowHandler(config_entries.ConfigFlow):
               {
                vol.Optional("creds", default=DEFAULT_CREDENTIALS_LOCATION): str,
                vol.Optional("pickle_path", default=DEFAULT_TOKEN_LOCATION): str,
-              }),
+              }
+            ),
             errors=errors,
         )
 
