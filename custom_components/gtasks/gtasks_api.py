@@ -56,7 +56,7 @@ class GtasksAPI(object):
 
     def get_taskslist_id(self, list_name: str):
         try:
-            all_list = self.service.tasklists().list().execute()    
+            all_list = self.service.tasklists().list(maxResults = 100).execute()
             if not all_list['items']:
                 return
             else:
@@ -69,7 +69,7 @@ class GtasksAPI(object):
 
     def get_task_id(self, list_id: str, task_name: str):
         try:
-            tasks_list = self.service.tasks().list(tasklist = list_id).execute()    
+            tasks_list = self.service.tasks().list(tasklist = list_id, maxResults = 100).execute()
             if not tasks_list['items']:
                 return
             else:
