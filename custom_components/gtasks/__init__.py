@@ -146,14 +146,7 @@ async def async_setup_entry(hass, config_entry):
         return False
     _LOGGER.info('data : %s', hass.data[DOMAIN_DATA])
     # Add binary_sensor
-    hass.async_add_job(
-        hass.config_entries.async_forward_entry_setup(config_entry, "binary_sensor")
-    )
-
-    # Add sensor
-    hass.async_add_job(
-        hass.config_entries.async_forward_entry_setup(config_entry, "sensor")
-    )
+    await hass.config_entries.async_forward_entry_setups(config_entry, ["binary_sensor", "sensor"])
 
     @callback
     async def new_task(call):
@@ -217,7 +210,7 @@ class GtasksData:
 
     async def update_data(self, list_name):
         """Runs the update of the main sensor."""
-        request_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list_name], showCompleted=False, maxResults=100)
+        request_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list_name], showCompleted=False)
         tag_sensor = list_name + CONF_SENSOR + "_data"
         try:
             tasks_list_sensor = await self.hass.async_add_executor_job(request_sensor.execute)
@@ -230,7 +223,7 @@ class GtasksData:
     async def update_binary_data(self, list_name):
         """Runs the update of the binary sensor."""
         today = date.today().strftime('%Y-%m-%dT00:00:00.000Z')
-        request_binary_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list_name], showCompleted=False, dueMax=today, maxResults=100)
+        request_binary_sensor = self._service.tasks().list(tasklist=self.tasks_lists_id[list_name], showCompleted=False, dueMax=today)
         tag_binary = list_name + CONF_BINARY_SENSOR + "_data"
         try:
             tasks_list_binary = await self.hass.async_add_executor_job(request_binary_sensor.execute)
