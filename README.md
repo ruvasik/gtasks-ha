@@ -1,4 +1,4 @@
-## Gtasks-Ha 2205 a Google Tasks Custom Component for Home Assistant
+## Gtasks-Ha 2025 a Google Tasks Custom Component for Home Assistant
 Forked from https://github.com/myntath/gtasks-ha
 Working with Home Assistant 2024.4 and later.
 
