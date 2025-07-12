@@ -1,11 +1,11 @@
 {
   "domain": "gtasks",
-  "name": "GTasks",
-  "documentation": "https://github.com/myntath/gtasks-ha",
+  "name": "GTasks2025",
+  "documentation": "https://github.com/ruvasik/gtasks-ha",
   "dependencies": [],
   "config_flow": true,
   "codeowners": [
-    "@Myntath"
+    "@ruvasik"
   ],
   "requirements": [
     "integrationhelper",
@@ -13,5 +13,6 @@
     "google-auth-httplib2",
     "google-auth-oauthlib"
   ],
-  "version": "0.6.1"
+  "version": "0.6.2",
+  "homeassistant": "2024.4.0"
 }

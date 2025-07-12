@@ -1,5 +1,6 @@
-## Gtasks-Ha a Google Tasks Custom Component for Home Assistant
-Forked from original repo by [@BlueBlueBlob](https://github.com/blueblueblob)
+## Gtasks-Ha 2205 a Google Tasks Custom Component for Home Assistant
+Forked from https://github.com/myntath/gtasks-ha
+Working with Home Assistant 2024.4 and later.
 
 You will probably also want to install the lovelace card to make best use of this. [lovelace-gtasks-card](https://github.com/myntath/lovelace-gtasks-card)
 

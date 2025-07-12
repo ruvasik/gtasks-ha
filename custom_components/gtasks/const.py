@@ -2,7 +2,7 @@
 # Base component constants
 DOMAIN = "gtasks"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.6.1"
+VERSION = "0.6.2"
 PLATFORMS = ["sensor", "binary_sensor"]
 REQUIRED_FILES = [
     ".translations/en.json",
@@ -13,7 +13,7 @@ REQUIRED_FILES = [
     "services.yaml",
     "binary_sensor.py",
 ]
-ISSUE_URL = "https://github.com/myntath/gtasks-ha/issues"
+ISSUE_URL = "https://github.com/ruvasik/gtasks-ha/issues"
 ATTRIBUTION = "Data from this is provided by gtasks."
 
 # Icons
@@ -34,7 +34,7 @@ CONF_TOKEN_NAME = 'token.pickle'
 # Defaults
 DEFAULT_NAME = DOMAIN
 DEFAULT_TOKEN_LOCATION = './custom_components/gtasks'
-DEFAULT_CREDENTIALS_LOCATION = './credentials.json'
+DEFAULT_CREDENTIALS_LOCATION = './custom_components/gtasks/credentials.json'
 
 
 # Services attributes
